@@ -1,0 +1,228 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/0.1.2-preview/CreateUIDefinition.MultiVm.json#",
+  "handler": "Microsoft.Azure.CreateUIDef",
+  "version": "0.1.2-preview",
+  "parameters": {
+    "config": {
+      "isWizard": true,
+      "basics": {
+        "location": {
+          "toolTip": "Region in which Vendor VNF will be created."
+        }
+      }
+    },
+    "basics": [
+      {
+        "name": "deviceId",
+        "type": "Microsoft.Solutions.ResourceSelector",
+        "label": "Azure VNF Manager device",
+        "toolTip": "Select the Azure Network Function Manager device on which Vendor VNF will be deployed",
+        "resourceType": "Microsoft.HybridNetwork/devices",
+        "options": {
+          "filter": {
+            "subscription": "onBasics",
+            "location": "onBasics"
+          }
+        }
+      },
+      {
+        "name": "nfName",
+        "type": "Microsoft.Common.TextBox",
+        "label": "NetFoundry VNF Name",
+        "toolTip": "Edge Router Name used in NF Console",
+        "placeholder": "demoZiti01",
+        "constraints": {
+          "regex": "^(([a-zA-Z0-9]){3,64})$",
+          "validationMessage": "The ER Name must be between 3 and 64 characters long and contain letters and numbers only.",
+          "required": true
+        }
+      },
+      {
+        "name": "edgeRouterKey",
+        "label": "Edge Router Registration Key",
+        "type": "Microsoft.Common.TextBox",
+        "toolTip": "Edge router Registration Key",
+        "constraints": {
+          "regex": "^(([A-Z0-9]){10,12})$",
+          "validationMessage": "Value must be a valid NF router registration key.",
+          "required": true
+        }
+      },
+      {
+        "name": "publicSshKey",
+        "label": "Public SSH Key",
+        "type": "Microsoft.Common.TextBox",
+        "toolTip": "Enter a RSA public ssh key",
+        "constraints": {
+          "regex": "^(ssh-rsa AAAA[0-9A-Za-z+/]+[=]{0,3})([^@]+@[^@]+)$",
+          "validationMessage": "Value must be a valid RSA Public SSH key, i.e. ssh-rsa AAAA... username@computername"
+        }
+      }
+    ],
+    "steps": [
+      {
+        "bladeTitle": "Network settings",
+        "label": "Network settings",
+        "name": "Network Settings",
+        "subLabel": {
+          "preValidation": "Configure Network Settings",
+          "postValidation": "Done!"
+        },
+        "elements": [
+          {
+            "name": "Management",
+            "type": "Microsoft.Common.Section",
+            "label": "Management",
+            "elements": [
+              {
+                "name": "ipAddress",
+                "label": "IP address",
+                "type": "Microsoft.Common.TextBox",
+                "toolTip": "Statically assigned IP address for the management interface",
+                "placeholder": "192.168.0.x",
+                "constraints": {
+                  "regex": "^(([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])\\.){3}([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])$",
+                  "validationMessage": "Value must be an IPv4 address.",
+                  "required": true
+                }
+              },
+              {
+                "name": "subnet",
+                "label": "Subnet",
+                "type": "Microsoft.Common.TextBox",
+                "toolTip": "IP subnet for the interface",
+                "placeholder": "192.168.0.x/24",
+                "constraints": {
+                  "regex": "^(([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])\\.){3}([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])/(8|9|[1-2][0-9]|3[0-2])$",
+                  "validationMessage": "Value must be an IPv4 subnet.",
+                  "required": true
+                }
+              },
+              {
+                "name": "gateway",
+                "label": "Default gateway",
+                "type": "Microsoft.Common.TextBox",
+                "toolTip": "Default gateway for the subnet",
+                "placeholder": "192.168.0.x",
+                "constraints": {
+                  "regex": "^(([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])\\.){3}([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])$",
+                  "validationMessage": "Value must be an IPv4 address.",
+                  "required": true
+                }
+              },
+              {
+                "name": "dnsServer1",
+                "type": "Microsoft.Common.TextBox",
+                "label": "DNS 1",
+                "toolTip": "Domain Name Server to be used as the first name resolver",
+                "placeholder": "1.1.1.1",
+                "constraints": {
+                  "regex": "^(([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])\\.){3}([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])$",
+                  "validationMessage": "Value must be an IPv4 address."
+                }
+              },
+              {
+                "name": "dnsServer2",
+                "type": "Microsoft.Common.TextBox",
+                "toolTip": "Domain Name Server to be used as the second name resolver",
+                "label": "DNS 2",
+                "constraints": {
+                  "regex": "^(([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])\\.){3}([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])$",
+                  "validationMessage": "Value must be an IPv4 address."
+                }
+              }
+            ]
+          },
+          {
+            "name": "Lan",
+            "type": "Microsoft.Common.Section",
+            "label": "Lan",
+            "elements": [
+              {
+                "name": "ipAddress",
+                "label": "IP address",
+                "type": "Microsoft.Common.TextBox",
+                "toolTip": "Statically assigned IP address for the lan interface",
+                "placeholder": "192.168.0.x",
+                "constraints": {
+                  "regex": "^(([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])\\.){3}([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])$",
+                  "validationMessage": "Value must be an IPv4 address.",
+                  "required": true
+                }
+              },
+              {
+                "name": "subnet",
+                "label": "Subnet",
+                "type": "Microsoft.Common.TextBox",
+                "toolTip": "IP subnet for the interface",
+                "placeholder": "192.168.0.x/24",
+                "constraints": {
+                  "regex": "^(([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])\\.){3}([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])/(8|9|[1-2][0-9]|3[0-2])$",
+                  "validationMessage": "Value must be an IPv4 subnet.",
+                  "required": true
+                }
+              },
+              {
+                "name": "gateway",
+                "label": "Default gateway",
+                "type": "Microsoft.Common.TextBox",
+                "toolTip": "Default gateway for the subnet",
+                "placeholder": "192.168.0.x",
+                "constraints": {
+                  "regex": "^(([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])\\.){3}([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])$",
+                  "validationMessage": "Value must be an IPv4 address."
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "bladeTitle": "Managed Identity Details",
+        "name": "identityDetails",
+        "label": "Managed Identity Details",
+        "subLabel": {
+          "preValidation": "Required",
+          "postValidation": "Done!"
+        },
+        "elements": [
+          {
+            "name": "identity",
+            "type": "Microsoft.ManagedIdentity.IdentitySelector",
+            "label": "Managed Identity Configuration",
+            "toolTip": {
+              "userAssignedIdentity": "Add user assigned identities to grant the managed application access to Azure Network Function Managed device."
+            },
+            "options": {
+              "hideSystemAssignedIdentity": true,
+              "hideUserAssignedIdentity": false
+            },
+            "visible": true
+          }
+        ]
+      }
+    ],
+    "outputs": {
+      "location": "[location()]",
+      "nfName": "[basics('nfName')]",
+      "deviceId": "[basics('deviceId').id]",
+      "edgeRouterKey": "[basics('edgeRouterKey')]",
+      "publicSshKey": "[basics('publicSshKey')]",
+      "mecmgmtNic": {
+        "type": "object",
+        "ipAddress": "[steps('Network Settings').Management.ipAddress]",
+        "subnet": "[steps('Network Settings').Management.subnet]",
+        "gateway": "[steps('Network Settings').Management.gateway]",
+        "dnsServer1": "[steps('Network Settings').Management.dnsServer1]",
+        "dnsServer2": "[steps('Network Settings').Management.dnsServer2]"
+      },
+      "meclanNic": {
+        "type": "object",
+        "ipAddress": "[steps('Network Settings').Lan.ipAddress]",
+        "subnet": "[steps('Network Settings').Lan.subnet]",
+        "gateway": "[steps('Network Settings').Lan.gateway]"
+      },
+      "managedIdentity": "[steps('identityDetails').identity]"
+    }
+  }
+}

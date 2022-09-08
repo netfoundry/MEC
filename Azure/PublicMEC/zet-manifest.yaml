@@ -1,0 +1,74 @@
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: zet-pv
+  labels:
+    type: local
+spec:
+  storageClassName: managed-csi
+  capacity:
+    storage: 100Mi
+  accessModes:
+    - ReadWriteOnce
+  hostPath:
+    path: "/ziti-edge-tunnel"
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: zet-aks-eastus01
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: zet-aks-eastus01
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: zet-aks-eastus01
+    spec:
+      containers:
+      - name: ziti-edge-tunnel
+        image: netfoundry/ziti-edge-tunnel:latest
+        resources:
+          requests:
+            cpu: 250m
+            memory: 64Mi
+          limits:
+            cpu: 500m
+            memory: 256Mi
+        env:
+        - name: NF_REG_NAME
+          value: ziti-identity
+        volumeMounts:
+        - name: zet-pv
+          mountPath: /ziti-edge-tunnel
+          readOnly: true
+        - name: system-bus-socket
+          mountPath: /var/run/dbus/system_bus_socket
+        securityContext:
+          privileged: true
+        args:
+        - --verbose=4
+        - --dns-ip-range=100.64.0.0/16
+      hostNetwork: true
+      dnsPolicy: ClusterFirstWithHostNet
+      dnsConfig:
+        nameservers:
+          - 127.0.0.1
+          - 1.1.1.1
+      restartPolicy: Always
+      volumes:
+      - name: zet-pv
+        secret:
+          secretName: ziti-enrolled-identity
+          defaultMode: 0400
+          items:
+          - key: ziti-enrolled-identity
+            path: ziti-identity.json
+      - name: system-bus-socket
+        hostPath:
+          path: /var/run/dbus/system_bus_socket

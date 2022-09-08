@@ -1,0 +1,108 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "location": {
+      "type": "string",
+      "metadata": {
+        "description": "Region in which NF VNF will be created"
+      },
+      "defaultValue": "[resourceGroup().location]"
+    },
+    "nfName": {
+      "type": "string",
+      "metadata": {
+        "description": "Name of NF VNF to be crated"
+      }
+    },
+    "deviceId": {
+      "type": "string",
+      "metadata": {
+        "description": "Azure Network Function Manager device instance"
+      }
+    },
+    "edgeRouterKey": {
+      "type": "string",
+      "metadata": {
+        "description": "Enter the edge router key"
+      }
+    },
+    "publicSshKey": {
+      "type": "string",
+      "metadata": {
+        "description": "Enter a public ssh key"
+      }
+    },
+    "mecmgmtNic": {
+      "type": "object"
+    },
+    "meclanNic": {
+      "type": "object"
+    }
+  },
+  "variables": {
+    "cloudInit1": "#cloud-config\nwrite_files:\n- encoding: b64\n  content: IyEvdXNyL2Jpbi9lbnYgcHl0aG9uMwppbXBvcnQgYXJncGFyc2UKaW1wb3J0IG5ldGlmYWNlcwppbXBvcnQgeWFtbAoKZGVmIGNvbmZpZ3VyZV9zZWNvbmRfaW50ZXJmYWNlIChpbnRlcmZhY2VfZGV0YWlscywgcHJlZml4KToKICAgIHNlY29uZF9uZXQ9eyJuZXR3b3JrIjp7ImV0aGVybmV0cyI6IHt9LCJ2ZXJzaW9uIjogMn19CiAgICBzZWNvbmRfbmV0WyJuZXR3b3JrIl1bImV0aGVybmV0cyJdW2ludGVyZmFjZV9kZXRhaWxzWzBdWydpbnRlcmZhY2VfbmFtZSddXT17CiAgICAgICAgImRoY3A0IjogRmFsc2UsCiAgICAgICAgImFkZHJlc3NlcyI6IFtwcmVmaXhdLAogICAgICAgICJtYXRjaCI6IHsKICAgICAgICAgICAgIm1hY2FkZHJlc3MiOiBpbnRlcmZhY2VfZGV0YWlsc1swXVsnaW50ZXJmYWNlX21hYyddCiAgICAgICAgfSwKICAgICAgICAic2V0LW5hbWUiOiBpbnRlcmZhY2VfZGV0YWlsc1swXVsnaW50ZXJmYWNlX25hbWUnXQogICAgfQogICAgd2l0aCBvcGVuKHInL2V0Yy9uZXRwbGFuLzEwLXNlY29uZC1uZXQueWFtbCcsICd3JykgYXMgZmlsZToKICAgICAgICB5YW1sLmR1bXAoc2Vjb25kX25ldCwgZmlsZSkKCmRlZiBtYWluICgpOgogICAgcGFyc2VyID0gYXJncGFyc2UuQXJndW1lbnRQYXJzZXIoZGVzY3JpcHRpb249J0FkZCBJcGNvbmZpZ3VyYXRpb24gdG8gU2Vjb25kIE5JQycpCiAgICBwYXJzZXIuYWRkX2FyZ3VtZW50KCItLWlwYWRkcmVzcyIsIHJlcXVpcmVkPVRydWUpCiAgICBwYXJzZXIuYWRkX2FyZ3VtZW50KCItLXN1Ym5ldCIsIHJlcXVpcmVkPVRydWUpCiAgICBhcmdzID0gcGFyc2VyLnBhcnNlX2FyZ3MoKQogICAgaW50ZXJmYWNlX2RldGFpbHMgPSBbXQogICAgZm9yIGludGVyZmFjZSBpbiBuZXRpZmFjZXMuaW50ZXJmYWNlcygpOgogICAgICAgIGlmIGludGVyZmFjZSBub3QgaW4gWyJsbyIsbmV0aWZhY2VzLmdhdGV3YXlzKClbJ2RlZmF1bHQnXVtuZXRpZmFjZXMuQUZfSU5FVF1bMV1dOgogICAgICAgICAgICBpbnRlcmZhY2VfZGV0YWlscyA9IGludGVyZmFjZV9kZXRhaWxzICsgW3sgImludGVyZmFjZV9uYW1lIjogaW50ZXJmYWNlLCAKICAgICAgICAgICAgICAgICJpbnRlcmZhY2VfbWFjIjogbmV0aWZhY2VzLmlmYWRkcmVzc2VzKGludGVyZmFjZSlbbmV0aWZhY2VzLkFGX0xJTktdWzBdWydhZGRyJ119XQogICAgcHJlZml4PSIlcy8lcyIgJSAoYXJncy5pcGFkZHJlc3MsIGFyZ3Muc3VibmV0LnNwbGl0KCcvJylbMV0pCiAgICBpZiBsZW4oaW50ZXJmYWNlX2RldGFpbHMpIDw9IDI6CiAgICAgICAgaWYgbGVuKGludGVyZmFjZV9kZXRhaWxzKSA9PSAxOgogICAgICAgICAgICBjb25maWd1cmVfc2Vjb25kX2ludGVyZmFjZShpbnRlcmZhY2VfZGV0YWlscywgcHJlZml4KQogICAgICAgIGVsaWYgbGVuKGludGVyZmFjZV9kZXRhaWxzKSA9PSAyOgogICAgICAgICAgICBpZiBpbnRlcmZhY2VfZGV0YWlsc1swXVsiaW50ZXJmYWNlX21hYyJdID09IGludGVyZmFjZV9kZXRhaWxzWzFdWyJpbnRlcmZhY2VfbWFjIl06CiAgICAgICAgICAgICAgICBjb25maWd1cmVfc2Vjb25kX2ludGVyZmFjZShpbnRlcmZhY2VfZGV0YWlscywgcHJlZml4KQogICAgICAgICAgICBlbHNlOgogICAgICAgICAgICAgICAgcHJpbnQoIkludGVyZmFjZSAzIGFuZCA0IGRvbnQgaGF2ZSB0aGUgc2FtZSBtYWMgYWRyZXNzZXMsIGV4aXRpbmcuLi4iKQogICAgICAgIGVsc2U6CiAgICAgICAgICAgIHByaW50KCJJbnRlcmZhY2UgNCBub3Qgc2V0dXAgaW4gU0xBVkUgbW9kZSwgaS5lLiBtYWMgYWRyZXNzZXMgYXJlIG5vdCBzYW1lIGZvciBJbnRlcmZhY2VzIDMgYW5kIDQsIGV4aXRpbmcuLi4iKQoKICAgIGVsc2U6CiAgICAgICAgICAgIHByaW50KCJNb3JlIHRoYW4gMiBpbnRlcmZhY2VzIGZvdW5kIGJleW9uZCBsbyBhbmQgZGVmYXVsdCwgZXhpdGluZy4uLiIpCgppZiBfX25hbWVfXyA9PSAiX19tYWluX18iOgogICAgbWFpbigpCg==",
+    "cloudInit2": "\n  owner: root:root\n  path: /var/lib/cloud/add_inteface.py\n  permissions: '0755'\nruncmd:",
+    "runIpaddress": "[concat('\n- [/var/lib/cloud/add_inteface.py, --ipaddress, ', parameters('meclanNic').ipAddress, ', --subnet, ', parameters('meclanNic').subnet,']')]",
+    "runEdgeRouter": "[concat('\n- [/usr/sbin/netplan, apply]\n- [/opt/netfoundry/router-registration, -e, ', parameters('meclanNic').ipAddress,', -i , ', parameters('meclanNic').ipAddress,', ', parameters('edgeRouterKey'),']')]",
+    "addSshKey": "[concat('\nssh_authorized_keys:\n- ', parameters('publicSshKey'))]",
+    "runCmd": "[concat(variables('cloudInit1'),' ',variables('cloudInit2'),' ',variables('runIpaddress'),' ',variables('runEdgeRouter'),' ',variables('addSshKey'))]",
+    "dnsMgmtServers": [
+      "[parameters('mecmgmtNic').dnsServer1]",
+      "[parameters('mecmgmtNic').dnsServer2]"
+    ]
+  },
+  "resources": [
+    {
+      "type": "Microsoft.HybridNetwork/networkFunctions",
+      "apiVersion": "2020-01-01-preview",
+      "location": "[parameters('location')]",
+      "name": "[parameters('nfName')]",
+      "properties": {
+        "skuName": "ziti-1.3.0-mnic",
+        "vendorName": "NetFoundryInc",
+        "device": {
+          "id": "[parameters('deviceId')]"
+        },
+        "networkFunctionUserConfigurations": [
+          {
+            "roleName": "ziti-edge-router",
+            "networkInterfaces": [
+              {
+                "networkInterfaceName": "mecmgmtNic",
+                "vmSwitchType": "Management",
+                "ipConfigurations": [
+                  {
+                    "ipAllocationMethod": "Static",
+                    "ipAddress": "[parameters('mecmgmtNic').ipAddress]",
+                    "subnet": "[parameters('mecmgmtNic').subnet]",
+                    "gateway": "[parameters('mecmgmtNic').gateway]",
+                    "ipVersion": "IPv4",
+                    "dnsServers": "[variables('dnsMgmtServers')]"
+                  }
+                ]
+              },
+              {
+                "networkInterfaceName": "meclanNic",
+                "vmSwitchType": "Lan",
+                "ipConfigurations": [
+                  {
+                    "ipAllocationMethod": "Static",
+                    "ipAddress": "[parameters('meclanNic').ipAddress]",
+                    "subnet": "[parameters('meclanNic').subnet]",
+                    "gateway": "[parameters('meclanNic').gateway]",
+                    "ipVersion": "IPv4"
+                  }
+                ]
+              }
+            ],
+            "osProfile": {
+              "customData": "[base64(variables('runCmd'))]"
+            }
+          }
+        ]
+      }
+    }
+  ],
+  "outputs": {}
+}

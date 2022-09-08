@@ -1,0 +1,310 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "virtualNetworks_vnet_location": {
+            "type": "String"
+        },
+        "edgeRouterKey": {
+            "type": "string",
+            "metadata": {
+                "description": "Enter the edge router key"
+            }
+        },
+        "sshKeyData": {
+            "type": "string",
+            "metadata": {
+                "description": "SSH RSA public key as a string."
+            }
+        },
+        "secondNic": {
+            "type": "string",
+            "metadata": {
+                "description": "Static IP of the Second Interface"
+            }
+        }
+    },
+    "variables": {
+        "virtualNetworks_vnet_name": "[concat('mec-', parameters('virtualnetworks_vnet_location'), '-vnet')]",
+        "subnet1_name": "[concat('mec-', parameters('virtualnetworks_vnet_location'), '-ziti-subnet1')]",
+        "subnet2_name": "[concat('mec-', parameters('virtualnetworks_vnet_location'), '-ziti-subnet2')]",
+        "route_table_name": "[concat('mec-', parameters('virtualnetworks_vnet_location'), '-ziti-routetable')]",
+        "ziti_edge_router_name": "[concat('mec-', parameters('virtualnetworks_vnet_location'), '-ziti-router')]",
+        "cloudInit": "#cloud-config\nruncmd:\n - [/opt/netfoundry/router-registration, -e, ",
+        "runZitiCmd": "[concat(variables('cloudInit'), parameters('secondNic'),', -i , ', parameters('secondNic'),', ', parameters('edgeRouterKey'),']')]"
+    },
+    "resources": [
+        {
+            "apiVersion": "2019-05-01",
+            "name": "pid-9b403a5d-5144-5486-a688-6d4384bbec6c",
+            "type": "Microsoft.Resources/deployments",
+            "properties": {
+                "mode": "Incremental",
+                "template": {
+                    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+                    "contentVersion": "1.0.0.0",
+                    "resources": []
+                }
+            }
+        },
+        {
+            "type": "Microsoft.Network/virtualNetworks",
+            "apiVersion": "2020-05-01",
+            "name": "[variables('virtualNetworks_vnet_name')]",
+            "location": "[parameters('virtualnetworks_vnet_location')]",
+            "dependsOn": [
+                "[variables('route_table_name')]"
+            ],
+            "tags": {
+                "Service": "Edge Router Multi Nic"
+            },
+            "properties": {
+                "addressSpace": {
+                    "addressPrefixes": [
+                        "10.1.0.0/16"
+                    ]
+                },
+                "subnets": [
+                    {
+                        "name": "[variables('subnet1_name')]",
+                        "properties": {
+                            "addressPrefix": "10.1.1.0/24",
+                            "routeTable": {
+                                "id": "[resourceId('Microsoft.Network/routeTables', variables('route_table_name'))]"
+                            },
+                            "delegations": [],
+                            "privateEndpointNetworkPolicies": "Enabled",
+                            "privateLinkServiceNetworkPolicies": "Enabled"
+                        }
+                    },
+                    {
+                        "name": "[variables('subnet2_name')]",
+                        "properties": {
+                            "addressPrefix": "10.1.2.0/24",
+                            "routeTable": {
+                                "id": "[resourceId('Microsoft.Network/routeTables', variables('route_table_name'))]"
+                            },
+                            "delegations": [],
+                            "privateEndpointNetworkPolicies": "Enabled",
+                            "privateLinkServiceNetworkPolicies": "Enabled"
+                        }
+                    }
+                ],
+                "virtualNetworkPeerings": [],
+                "enableDdosProtection": false,
+                "enableVmProtection": false
+            }
+        },
+        {
+            "apiVersion": "2020-05-01",
+            "type": "Microsoft.Network/routeTables",
+            "name": "[variables('route_table_name')]",
+            "location": "[parameters('virtualnetworks_vnet_location')]",
+            "tags": {
+                "Service": "Edge Router Multi Nic"
+            },
+            "properties": {
+                "disableBgpRoutePropagation": false
+            }
+        },
+        {
+            "apiVersion": "2020-05-01",
+            "type": "Microsoft.Network/networkSecurityGroups",
+            "name": "[concat('mec-', parameters('virtualnetworks_vnet_location'), '-ziti-01-sg')]",
+            "location": "[parameters('virtualnetworks_vnet_location')]",
+            "tags": {
+                "Service": "Edge Router Multi Nic"
+            },
+            "properties": {
+                "securityRules": [
+                    {
+                        "name": "SSH",
+                        "properties": {
+                            "priority": 1010,
+                            "protocol": "TCP",
+                            "access": "Allow",
+                            "direction": "Inbound",
+                            "sourceAddressPrefix": "*",
+                            "sourcePortRange": "*",
+                            "destinationAddressPrefix": "*",
+                            "destinationPortRange": "22"
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "apiVersion": "2020-05-01",
+            "type": "Microsoft.Network/networkSecurityGroups",
+            "name": "[concat('mec-', parameters('virtualnetworks_vnet_location'), '-ziti-02-sg')]",
+            "location": "[parameters('virtualnetworks_vnet_location')]",
+            "tags": {
+                "Service": "Edge Router Multi Nic"
+            },
+            "properties": {
+                "securityRules": [
+                    {
+                        "name": "ALL_LOCAL",
+                        "properties": {
+                            "priority": 1010,
+                            "protocol": "TCP",
+                            "access": "Allow",
+                            "direction": "Inbound",
+                            "sourceAddressPrefix": "10.1.0.0/16",
+                            "sourcePortRange": "*",
+                            "destinationAddressPrefix": "*",
+                            "destinationPortRange": "*"
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "name": "[concat(variables('ziti_edge_router_name'), '-int01')]",
+            "type": "Microsoft.Network/networkInterfaces",
+            "apiVersion": "2020-05-01",
+            "location": "[parameters('virtualnetworks_vnet_location')]",
+            "dependsOn": [
+                "[concat('Microsoft.Network/networkSecurityGroups/mec-', parameters('virtualnetworks_vnet_location'), '-ziti-01-sg')]",
+                "[concat('Microsoft.Network/virtualNetworks/', variables('virtualNetworks_vnet_name'))]",
+                "[concat('Microsoft.Network/publicIPAddresses/', variables('ziti_edge_router_name'), '-int01-ip')]"
+            ],
+            "properties": {
+                "ipConfigurations": [
+                    {
+                        "name": "ipconfig1",
+                        "properties": {
+                            "subnet": {
+                                "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', variables('virtualNetworks_vnet_name'), variables('subnet1_name'))]"
+                            },
+                            "privateIPAllocationMethod": "Dynamic",
+                            "publicIPAddress": {
+                                "id": "[resourceId('Microsoft.Network/publicIPAddresses', concat(variables('ziti_edge_router_name'), '-int01-ip'))]"
+                            }
+                        }
+                    }
+                ],
+                "networkSecurityGroup": {
+                    "id": "[resourceId('Microsoft.Network/networkSecurityGroups', concat('mec-', parameters('virtualnetworks_vnet_location'), '-ziti-01-sg'))]"
+                },
+                "enableIPForwarding": true
+            },
+            "tags": {
+                "Service": "Edge Router Multi Nic"
+            }
+        },
+        {
+            "name": "[concat(variables('ziti_edge_router_name'), '-int02')]",
+            "type": "Microsoft.Network/networkInterfaces",
+            "apiVersion": "2020-05-01",
+            "location": "[parameters('virtualnetworks_vnet_location')]",
+            "dependsOn": [
+                "[concat('Microsoft.Network/networkSecurityGroups/mec-', parameters('virtualnetworks_vnet_location'), '-ziti-02-sg')]",
+                "[concat('Microsoft.Network/virtualNetworks/', variables('virtualNetworks_vnet_name'))]"
+            ],
+            "properties": {
+                "ipConfigurations": [
+                    {
+                        "name": "ipconfig1",
+                        "properties": {
+                            "subnet": {
+                                "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', variables('virtualNetworks_vnet_name'), variables('subnet2_name'))]"
+                            }
+                        }
+                    }
+                ],
+                "networkSecurityGroup": {
+                    "id": "[resourceId('Microsoft.Network/networkSecurityGroups', concat('mec-', parameters('virtualnetworks_vnet_location'), '-ziti-02-sg'))]"
+                },
+                "enableIPForwarding": true
+            },
+            "tags": {
+                "Service": "Edge Router Multi Nic"
+            }
+        },
+        {
+            "name": "[concat(variables('ziti_edge_router_name'), '-int01-ip')]",
+            "type": "Microsoft.Network/publicIPAddresses",
+            "apiVersion": "2020-05-01",
+            "location": "[parameters('virtualnetworks_vnet_location')]",
+            "properties": {
+                "publicIPAllocationMethod": "Static"
+            },
+            "sku": {
+                "name": "Standard"
+            },
+            "tags": {
+                "Service": "Edge Router Multi Nic"
+            }
+        },
+        {
+            "name": "[variables('ziti_edge_router_name')]",
+            "type": "Microsoft.Compute/virtualMachines",
+            "apiVersion": "2019-07-01",
+            "location": "[parameters('virtualnetworks_vnet_location')]",
+            "dependsOn": [
+                "[concat('Microsoft.Network/networkInterfaces/', variables('ziti_edge_router_name'), '-int01')]",
+                "[concat('Microsoft.Network/networkInterfaces/', variables('ziti_edge_router_name'), '-int02')]"
+            ],
+            "properties": {
+                "hardwareProfile": {
+                    "vmSize": "Standard_B2ms"
+                },
+                "storageProfile": {
+                    "osDisk": {
+                        "createOption": "fromImage",
+                        "managedDisk": {
+                            "storageAccountType": "Premium_LRS"
+                        }
+                    },
+                    "imageReference": {
+                        "publisher": "netfoundryinc",
+                        "offer": "ziti-edge-router",
+                        "sku": "ziti-edge-router",
+                        "version": "1.0.0"
+                    }
+                                },
+                "networkProfile": {
+                    "networkInterfaces": [
+                        {
+                            "id": "[resourceId('Microsoft.Network/networkInterfaces',  concat(variables('ziti_edge_router_name'), '-int01'))]",
+                            "properties": {
+                                "primary": true
+                            }
+                        },
+                        {
+                            "id": "[resourceId('Microsoft.Network/networkInterfaces',  concat(variables('ziti_edge_router_name'), '-int02'))]",
+                            "properties": {
+                                "primary": false
+                            }
+                        }
+                    ]
+                },
+                "osProfile": {
+                    "computerName": "[variables('ziti_edge_router_name')]",
+                    "adminUsername": "ziggy",
+                    "customData": "[base64(variables('runZitiCmd'))]",
+                    "linuxConfiguration": {
+                        "disablePasswordAuthentication": true,
+                        "ssh": {
+                            "publicKeys": [
+                                {
+                                    "path": "/home/ziggy/.ssh/authorized_keys",
+                                    "keyData": "[parameters('sshKeyData')]"
+                                }
+                            ]
+                        }
+                    }
+                }
+            },
+            "plan": {
+                "name": "ziti-edge-router",
+                "publisher": "netfoundryinc",
+                "product": "ziti-edge-router"
+            },
+            "tags": {
+                "Service": "Edge Router Multi Nic"
+            }
+        }
+    ]
+}

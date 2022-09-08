@@ -1,0 +1,45 @@
+---
+
+- hosts: localhost
+  gather_facts: no
+  connection: local
+  vars:
+    azure_er_details:
+    - name: AZUREER01
+      tunnelerEnabled: True
+      rotateKey: True
+    - name: AZUREER02
+      tunnelerEnabled: False
+      rotateKey: True
+    customer_edge_routers:
+    - name: AZUREER01
+      public_ip: 192.168.100.11
+    - name: AZUREER02
+      public_ip: 192.168.100.12
+
+  tasks:
+  - name: Set Azure ER Public IP to variable
+    set_fact: 
+      azure_er_details_temp:  "{{ azure_er_details_temp|default([]) + [azure_er_details | selectattr('name', 'search', item.name) | list | first | combine({'public_ip': item.public_ip})] }}"
+    loop: "{{ customer_edge_routers }}"
+
+  - name: Update azure er details
+    set_fact:
+      azure_er_details: "{{ azure_er_details_temp }}"
+
+  - name: Print azure er details
+    debug: 
+      var: azure_er_details
+
+  - name: Create hosts.ini file
+    copy:
+      content: "[azure-routers]\n[mec-routers]\n64.86.230.66 ansible_port=2221\n64.86.230.66 ansible_port=2222"
+      dest: "hosts.ini"
+
+  - name: Copy Azure ER Public IP to the hosts.ini file
+    ini_file:
+      path: hosts.ini
+      section: azure-routers
+      option: "{{ item.public_ip }}"
+      allow_no_value: True
+    loop: "{{ azure_er_details }}"

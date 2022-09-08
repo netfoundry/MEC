@@ -1,0 +1,71 @@
+{
+  "variables": {
+    "azure_tenant_id": "{{env `ARM_TENANT_ID`}}",
+    "azure_client_id": "{{env `ARM_CLIENT_ID`}}",
+    "azure_client_secret": "{{env `ARM_CLIENT_SECRET`}}",
+    "azure_subscription_id": "{{env `ARM_SUBSCRIPTION_ID`}}",
+    "azure_build_resource_group_name": "{{env `ARM_BUILD_RESOURCE_GROUP_NAME`}}",
+    "azure_resource_group_name": "{{env `ARM_RESOURCE_GROUP_NAME`}}",
+    "azure_storage_account": "{{env `ARM_STORAGE_ACCOUNT`}}",
+    "working_directory": "{{env `DIRNAME`}}",
+    "build_version": "{{env `VERSION_NUMBER`}}"
+  },
+  "builders": [
+    {
+      "type": "azure-arm",
+      "client_id": "{{user `azure_client_id`}}",
+      "client_secret": "{{user `azure_client_secret`}}",
+      "resource_group_name": "{{user `azure_resource_group_name`}}",
+      "build_resource_group_name": "{{user `azure_build_resource_group_name`}}",
+      "capture_container_name": "builds",
+      "capture_name_prefix": "nf-vnf-{{user `build_version`}}",
+      "subscription_id": "{{user `azure_subscription_id`}}",
+      "tenant_id": "{{user `azure_tenant_id`}}",
+      "storage_account": "{{user `azure_storage_account`}}",
+      "os_type": "Linux",
+      "image_url": "https://cloudengimages.blob.core.windows.net/system/Microsoft.Compute/Images/builds/nf-gw-7.3.0-60373398-osDisk.f6787df2-de9f-4377-819b-e2aa97e12e4d.vhd",
+      "ssh_username": "packer",
+      "ssh_pty": true,
+      "vm_size": "Standard_DS1"
+    }
+  ],
+  "provisioners": [
+    {
+      "type": "file",
+      "source": "{{user `working_directory`}}/managedAppMultiNic/setup_lan_script.sh",
+      "destination": "/tmp/setup_lan_script.sh"
+    },
+    {
+      "type": "shell",
+      "inline": [
+        "sudo cp /tmp/setup_lan_script.sh /opt/netfoundry/setup_lan_script.sh",
+        "sudo sed -i -e 's/\r$//' /opt/netfoundry/setup_lan_script.sh",
+        "sudo chmod +x /opt/netfoundry/setup_lan_script.sh",
+        "sudo rm -Rf /tmp/*"
+      ]
+    },
+    {
+      "type": "shell",
+      "execute_command": "echo '{{user `ssh_pass`}}' | {{ .Vars }} sudo -S -E '{{ .Path }}'",
+      "inline_shebang": "/bin/bash -eux",
+      "inline": [
+        "set -o pipefail",
+        "/usr/bin/nmcli connection add type ethernet con-name 'System eth1' ifname eth1 connection.autoconnect yes ipv6.method ignore"
+      ],
+      "skip_clean": "true"
+    },
+    {
+      "type": "shell",
+      "execute_command": "echo '{{user `ssh_pass`}}' | {{ .Vars }} sudo -S -E '{{ .Path }}'",
+      "inline_shebang": "/bin/bash -eux",
+      "inline": [
+        "set -o pipefail",
+        "/usr/sbin/waagent -force -deprovision+user",
+        "history -c",
+        "unset HISTFILE",
+        "sync"
+      ],
+      "skip_clean": "true"
+    }
+  ]
+}

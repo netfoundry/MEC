@@ -1,0 +1,15 @@
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: ziti-enrolled-identity
+  labels:
+    type: local
+spec:
+   storageClassName: managed-csi
+   capacity:
+     storage: 100Mi
+   accessModes:
+     - ReadWriteOnce
+   hostPath:
+     path: "/ziti-edge-tunnel"

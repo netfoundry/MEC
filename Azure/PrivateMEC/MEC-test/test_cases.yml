@@ -1,0 +1,88 @@
+---
+# To complete the tests, run these in order.
+# 1. ansible-playbook  azure-deploy/MEC-test/test_cases.yml -i azure-deploy/MEC-test/hosts.ini --tags azure-listen -e routers=azure-routers -u ziggy
+# 2. ansible-playbook  azure-deploy/MEC-test/test_cases.yml -i azure-deploy/MEC-test/hosts.ini --tags mec-client -e routers=mec-routers -u ziggy
+# 3. ansible-playbook  azure-deploy/MEC-test/test_cases.yml -i azure-deploy/MEC-test/hosts.ini --tags mec-listen -e routers=mec-routers -u ziggy
+# 4. ansible-playbook  azure-deploy/MEC-test/test_cases.yml -i azure-deploy/MEC-test/hosts.ini --tags azure-client -e routers=azure-routers -u ziggy
+# 5. ansible-playbook  azure-deploy/MEC-test/test_cases.yml -i azure-deploy/MEC-test/hosts.ini --tags azure-result -e routers=azure-routers -u ziggy -v
+# 6. ansible-playbook  azure-deploy/MEC-test/test_cases.yml -i azure-deploy/MEC-test/hosts.ini --tags mec-result -e routers=mec-routers -u ziggy -v
+#############
+# Run Tests #
+#############
+- name: Initial Router Config
+  hosts: "{{ routers }}"
+
+  tasks:
+##########################
+# TC1: UDP Azure --> MEC #
+##########################
+  - name:  Test | Run nc on MEC in listen udp mode
+    shell: "{{ item }}"
+    loop:
+    - sudo ufw disable
+    - nohup nc -luk 192.168.100.111 5050 1>nc_mec_out &
+    tags:
+    - mec-listen
+
+  - name:  Test | Run nc on Azure in client udp mode
+    shell: "{{ item }}"
+    loop:
+    - sh -c 'echo "mec\nmec\nmec" | nc 192.168.100.111 5050 -u | exit'
+    - sh -c 'echo "mec\nmec\nmec" | nc 192.168.100.111 5050 -u | exit'
+    - sh -c 'echo "mec\nmec\nmec" | nc 192.168.100.111 5050 -u | exit'
+    tags:
+    - azure-client
+
+  - name: Check netcat output file to confirm the transfer
+    shell: sh -c 'grep -w "nc_mec_out" -e "mec" | wc -l'
+    register: shell_return
+    tags:
+    - mec-result
+  
+  - name: Azure --> MEC UDP Test Result
+    debug: 
+      msg: PASS 
+    when: shell_return.stdout == "9"
+    tags:
+    - mec-result
+
+#- name: Kill nc process
+#  shell: kill $(pidof nc)
+
+##########################
+# TC2: TCP MEC --> Azure #
+##########################
+  - name: Test | Run nc on Azure in listen tcp mode
+    shell: "{{ item }}"
+    loop:
+    - sudo ufw disable
+    - nohup nc -lk 10.1.1.5 8080 1>nc_azure_out &
+    tags:
+    - azure-listen
+
+  - name:  Test | Run nc on MEC in client tcp mode
+    shell: "{{ item }}"
+    loop:
+    - sh -c 'sudo ip route add 10.1.1.0/24 via 192.168.100.111'
+    - sh -c 'echo "azure\nazure\nazure" | nc 10.1.1.5  8080 | exit'
+    - sh -c 'echo "azure\nazure\nazure" | nc 10.1.1.5 8080 | exit'
+    - sh -c 'echo "azure\nazure\nazure" | nc 10.1.1.5  8080 | exit'
+    - sh -c 'echo "azure\nazure\nazure" | nc 10.1.1.5  8080 | exit'
+    tags:
+    - mec-client
+
+  - name: Check netcat output file to confirm the transfer
+    shell: sh -c 'grep -w "nc_azure_out" -e "azure" | wc -l'
+    register: shell_return
+    tags:
+    - azure-result
+  
+  - name: MEC --> Azure TCP Test Result
+    debug: 
+      msg: PASS 
+    when: shell_return.stdout == "12"
+    tags:
+    - azure-result
+
+#- name: Kill nc process
+#  shell: kill $(pidof nc)

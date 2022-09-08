@@ -1,0 +1,45 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "resourceName": {
+            "value": "dariusz-kube01"
+        },
+        "location": {
+            "value": "westus"
+        },
+        "dnsPrefix": {
+            "value": "dariusz-kube01-dns"
+        },
+        "kubernetesVersion": {
+            "value": "1.22.6"
+        },
+        "vnetName": {
+            "value": "dariusz-vnet01"
+        },
+        "localAddressPrefixes": {
+            "value": ["10.16.0.0/16"]
+        },
+        "serviceCidr": {
+            "value": "10.16.0.0/24"
+        },
+        "dnsServiceIP": {
+            "value": "10.16.0.10"
+        },
+        "acrName": {
+            "value": "dariuszCR01"
+        },
+        "acrResourceGroup": {
+            "value": "test02"
+        },
+        "appCidr": {
+            "value": "10.16.1.0/24"
+        },
+        "adminPublicKey": {
+            "value": "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCjga67wcolSXaD1bswknLrejRYtZ4W55Y6qfoipYfeDVrwVgtalcWcEGPsrqcs3hd/+xSZ0bC6BakO4wpuX38I3uMH0RVOiZlKzgCkVih5hJoAi2YAMCCpV0FhAvKEWIs9HPXEW0Ke5hRkGybi7lkHIfKWwOBOQZTkHCbTR4HdcjrOo2MdTbJK/6EgsJF6Cy9k+F0z8SSKd0C2S0O2VZ49/iF5OcEHeUuyjurJZWdPl3CutQ9dNTgUkOiVfHWRUco7n4wTa/1I/8V0w8dU2F+rHu2UEo1h3humFfyT0nOfsySgLTG+4h90C+INMSungC0QwoVmpJs/TrPnaWRvZ9dJ DariuszSliwinski@dsliwinski-byod"
+        },
+        "edgeRouterKey1": {
+            "value": "UWEMNR6FOU"
+        }
+    }
+}
