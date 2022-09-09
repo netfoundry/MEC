@@ -1,0 +1,44 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+      "router_name": {
+        "type": "string"
+      },
+      "router_attribute": {
+        "type": "string"
+      }
+    },
+    "resources": [
+      {
+        "type": "Microsoft.Resources/deploymentScripts",
+        "apiVersion": "2020-10-01",
+        "name": "runPowerShellInlineWithOutput",
+        "location": "[resourceGroup().location]",
+        "kind": "AzurePowerShell",
+        "properties": {
+          "azPowerShellVersion": "6.4",
+          "timeout": "PT1H",
+          "cleanupPreference": "OnSuccess",
+          "retentionInterval": "P1D",
+          "environmentVariables": [
+            {
+              "name": "ROUTER_NAME",
+              "value": "[parameters('acrName')]"
+            },
+            {
+              "name": "ROUTER_ATTRIBUTE",
+              "value": "[parameters('images')[copyIndex()]]"
+            }
+          ],
+          "primaryScriptUri": "https://raw.githubusercontent.com/Azure/azure-docs-json-samples/master/deployment-script/deploymentscript-helloworld.ps1"
+        }
+      }
+    ],
+    "outputs": {
+      "result": {
+        "value": "[reference('runPowerShellInlineWithOutput').outputs.text]",
+        "type": "string"
+      }
+    }
+  }

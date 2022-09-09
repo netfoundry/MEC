@@ -31,7 +31,8 @@ spec:
           readOnly: true
         args:
         - --config=/app/identity.json
-        - --service=grpcService
+        - --hostedServices={"name":"grpcService","addressByIdentity":false}
+        - --hostedServices={"name":"grpcServiceAddr","addressByIdentity":true}
         - server
       restartPolicy: Always
       volumes:
