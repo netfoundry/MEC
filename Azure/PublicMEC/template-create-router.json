@@ -57,7 +57,7 @@
     ],
     "outputs": {
       "result": {
-        "value": "[reference('runPowerShellInlineWithOutput').outputs]",
+        "value": "[reference('runPowerShellInlineWithOutput').outputs.text]",
         "type": "string"
       }
     }
