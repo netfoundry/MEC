@@ -56,7 +56,7 @@
       }
     ],
     "outputs": {
-      "result": {
+      "router_registration_key": {
         "value": "[reference('Microsoft.Resources/deploymentScripts/runPowerShellInlineWithOutput').outputs.text]",
         "type": "string"
       }
