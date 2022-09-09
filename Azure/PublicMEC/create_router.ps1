@@ -40,9 +40,8 @@ function Create-Edge-Router([string]$token, [string]$network_id, [string]$router
 }
 
 # Get a registration key from the newly created router
-function Get-Router-Reg-Key([string]$token, [string]$network_group_id, [string]$router_id) {
+function Get-Router-Reg-Key([string]$token, [string]$router_id) {
     $headers = New-Object "System.Collections.Generic.Dictionary[[String],[String]]"
-    $headers.Add("NF-OrganizationId", "$network_group_id")
     $headers.Add("Authorization", "Bearer $token")
 
     $response = Invoke-RestMethod "https://gateway.production.netfoundry.io/core/v2/edge-routers/$router_id/registration-key" -Method 'POST' -Headers $headers
@@ -65,5 +64,6 @@ $network = $networks._embedded.networkList | Where-Object  {$_.name -Eq 'private
 # create edge router on a given network
 $router = Create-Edge-Router -token $data.access_token -network_id $network.id -router_name $router_name -router_attribute $router_attribute
 # Get a registration key from the newly created router
-$reg_key = Get-Router-Reg-Key -token $data.access_token -network_group_id $network.networkGroupId -router_id $router.id
+Start-Sleep -Seconds 10
+$reg_key = Get-Router-Reg-Key -token $data.access_token -router_id $router.id
 $reg_key.registrationKey
