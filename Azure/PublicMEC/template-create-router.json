@@ -57,7 +57,7 @@
     ],
     "outputs": {
       "result": {
-        "value": "[reference('runPowerShellInlineWithOutput').registrationKey.text]",
+        "value": "[reference('runPowerShellInlineWithOutput').outputs.registration_key]",
         "type": "string"
       }
     }

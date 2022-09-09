@@ -66,4 +66,7 @@ $router = Create-Edge-Router -token $data.access_token -network_id $network.id -
 # Get a registration key from the newly created router
 Start-Sleep -Seconds 10
 $reg_key = Get-Router-Reg-Key -token $data.access_token -router_id $router.id
-$registrationKey = $reg_key.registrationKey
+# Output the registration key
+Write-Output $reg_key.registrationKey
+$DeploymentScriptOutputs = @{}
+$DeploymentScriptOutputs['registration_key'] = $reg_key.registrationKey
