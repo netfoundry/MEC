@@ -66,4 +66,4 @@ $router = Create-Edge-Router -token $data.access_token -network_id $network.id -
 # Get a registration key from the newly created router
 Start-Sleep -Seconds 10
 $reg_key = Get-Router-Reg-Key -token $data.access_token -router_id $router.id
-$reg_key.registrationKey = $outputs
+$registrationKey = $reg_key.registrationKey
