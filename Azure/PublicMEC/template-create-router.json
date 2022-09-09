@@ -57,7 +57,7 @@
     ],
     "outputs": {
       "result": {
-        "value": "[reference('Microsoft.Resources/deploymentScripts/runPowerShellInlineWithOutput').text]",
+        "value": "[reference('Microsoft.Resources/deploymentScripts/runPowerShellInlineWithOutput')]",
         "type": "string"
       }
     }
