@@ -55,10 +55,5 @@
         }
       }
     ],
-    "outputs": {
-      "result": {
-        "value": "[reference('Microsoft.Resources/deploymentScripts/runPowerShellInlineWithOutput')]",
-        "type": "string"
-      }
-    }
+    "outputs": {}
   }
