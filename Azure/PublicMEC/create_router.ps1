@@ -69,4 +69,4 @@ $reg_key = Get-Router-Reg-Key -token $data.access_token -router_id $router.id
 # Output the registration key
 Write-Output $reg_key.registrationKey
 $DeploymentScriptOutputs = @{}
-$DeploymentScriptOutputs['registration_key'] = $reg_key.registrationKey
+$DeploymentScriptOutputs['text'] = $reg_key.registrationKey
