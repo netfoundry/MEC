@@ -52,11 +52,13 @@ function Get-Router-Reg-Key([string]$token, [string]$network_group_id, [string]$
 }
 
 # Authenticate with NetFoundry Platform to receive an access token using credential file stored in your home directory under ~/.netfoundry folder
+$client_id = $env:CLIENT_ID
+$client_secret = $env:CLIENT_SECRET
 $router_name = $env:ROUTER_NAME
 $router_attribute = $env:ROUTER_ATTRIBUTE
 # Get a registration key from the newly created router
-$cred_data = Get-Content ~/.netfoundry/credentials.json | Out-String | ConvertFrom-Json
-$data = Authenticate -username $cred_data.clientId -password $cred_data.password
+#$cred_data = Get-Content ~/.netfoundry/credentials.json | Out-String | ConvertFrom-Json
+$data = Authenticate -username $client_id -password $client_secret
 # Look up all networks within the same network group and filter for a given network name
 $networks = Lookup-Networks -token $data.access_token
 $network = $networks._embedded.networkList | Where-Object  {$_.name -Eq 'privatedcmgmt'}

@@ -2,12 +2,24 @@
     "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
     "contentVersion": "1.0.0.0",
     "parameters": {
-      "router_name": {
-        "type": "string"
-      },
-      "router_attribute": {
-        "type": "string"
-      }
+        "location": {
+            "type": "string",
+            "defaultValue": "eastus"
+        },
+        "router_name": {
+            "type": "string",
+            "defaultValue": "dariusztest01"
+        },
+        "router_attribute": {
+            "type": "string",
+            "defaultValue": "dariusztest01"
+        },
+        "client_id": {
+            "type": "string"
+        },
+        "client_secret": {
+            "type": "securestring"
+        }
     },
     "resources": [
       {
@@ -24,14 +36,22 @@
           "environmentVariables": [
             {
               "name": "ROUTER_NAME",
-              "value": "[parameters('acrName')]"
+              "value": "[parameters('router_name')]"
             },
             {
               "name": "ROUTER_ATTRIBUTE",
-              "value": "[parameters('images')[copyIndex()]]"
-            }
+              "value": "[parameters('router_attribute')]"
+            },
+            {
+                "name": "CLIENT_ID",
+                "value": "[parameters('client_id')]"
+              },
+              {
+                "name": "CLIENT_SECRET",
+                "value": "[parameters('client_secret')]"
+              }
           ],
-          "primaryScriptUri": "https://raw.githubusercontent.com/Azure/azure-docs-json-samples/master/deployment-script/deploymentscript-helloworld.ps1"
+          "primaryScriptUri": "https://raw.githubusercontent.com/netfoundry/MEC/public_mec/Azure/PublicMEC/create_router.ps1"
         }
       }
     ],
