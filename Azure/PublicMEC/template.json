@@ -192,10 +192,10 @@
               },
               "parameters": {
                 "router_name": {
-                    "value": "[parameters('storageAccountName')]"
+                    "value": "[reference(concat('Microsoft.ContainerService/managedClusters/', parameters('resourceName'))).privateFQDN]"
                 },
                 "router_attribute": {
-                    "value": "[parameters('router_attribute')]"
+                    "value": "[reference(concat('Microsoft.ContainerService/managedClusters/', parameters('resourceName'))).privateFQDN]"
                 },
                 "client_id": {
                     "value": "[parameters('client_id')]"
@@ -204,7 +204,6 @@
                     "value": "[parameters('client_secret')]"
                 }
               }
-
             }
         },
         {
@@ -350,9 +349,9 @@
             }
         },
         {
+            "name": "[variables('networkInterfaceEr1')]",
             "type": "Microsoft.Network/networkInterfaces",
             "apiVersion": "2021-08-01",
-            "name": "reference('linkedTemplateCreateRouter').outputs.router_registration_key.value",
             "location": "[parameters('location')]",
             "dependsOn": [
                 "[concat('Microsoft.Network/networkSecurityGroups/', variables('networkSecurityGroupName1'))]",
@@ -385,9 +384,9 @@
             }
         },
         {
+            "name": "[variables('publicIpAddressEr1')]",
             "type": "Microsoft.Network/publicIpAddresses",
             "apiVersion": "2021-08-01",
-            "name": "[variables('publicIpAddressEr1')]",
             "location": "[parameters('location')]",
             "dependsOn": [
                 "[concat('Microsoft.ContainerService/managedClusters/', parameters('resourceName'))]"
@@ -503,7 +502,7 @@
                                             ]
                                         }
                                     },
-                                    "customData": "[base64(reference('linkedTemplateCreateRouter').outputs.router_registration_key.value)]"
+                                    "customData": "[base64(reference('linkedTemplateCreateRouter').outputs.router_reg_command_with_regkey.value)]"
                                 },
                                 "diagnosticsProfile": {
                                     "bootDiagnostics": {

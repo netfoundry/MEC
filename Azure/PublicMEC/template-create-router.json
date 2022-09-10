@@ -51,7 +51,7 @@
     ],
     "outputs": {
       "router_reg_command_with_regkey": {
-        "value": "[concat('#cloud-config\nruncmd:\n- [/opt/netfoundry/router-registration, ', reference('Microsoft.Resources/deploymentScripts/runPowerShellInlineWithOutput').outputs.text, ']')]",
+        "value": "[reference('Microsoft.Resources/deploymentScripts/runPowerShellInlineWithOutput').outputs.text]",
         "type": "string"
       }
     }
