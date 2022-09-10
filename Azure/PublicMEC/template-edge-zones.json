@@ -195,8 +195,8 @@
         "appSubnetID": "[concat(variables('vnetId'), '/subnets/', parameters('appSubnetName'))]",
         "serviceSubnetID": "[concat(variables('vnetId'), '/subnets/', parameters('serviceSubnetName'))]",
         "nfErName1": "[reference(concat('AKSClusterDeployment', parameters('acrResourceGroup'))).outputs.aksApiFQDN.value]",
-        "publicIpAddressEr1": "[concat(parameters('nfErName1'),'-ip')]",
-        "networkInterfaceEr1": "[concat(parameters('nfErName1'),'-netif')]",
+        "publicIpAddressEr1": "[concat(variables('nfErName1'),'-ip')]",
+        "networkInterfaceEr1": "[concat(variables('nfErName1'),'-netif')]",
         "networkSecurityGroupName1": "[concat(variables('vnetId'), '/subnets/','-',parameters('location'),'-nsg1')]",
         "nsgId1": "[resourceId(resourceGroup().name, 'Microsoft.Network/networkSecurityGroups', variables('networkSecurityGroupName1'))]",
         "cloudInit1": "[concat('#cloud-config\nruncmd:\n- [/opt/netfoundry/router-registration, ', reference('linkedTemplateCreateRouter').outputs.router_registration_key.value, ']')]"

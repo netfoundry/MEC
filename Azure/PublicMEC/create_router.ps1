@@ -68,5 +68,8 @@ Start-Sleep -Seconds 10
 $reg_key = Get-Router-Reg-Key -token $data.access_token -router_id $router.id
 # Output the registration key
 Write-Output $reg_key.registrationKey
+$REGTEXT = "#cloud-config\nruncmd:\n- [/opt/netfoundry/router-registration, $reg_key.registrationKey]"
+$ENCODED = [Convert]::ToBase64String([Text.Encoding]::Unicode.GetBytes($REGTEXT))
+Write-Output $ENCODED
 $DeploymentScriptOutputs = @{}
-$DeploymentScriptOutputs['text'] = $reg_key.registrationKey
+$DeploymentScriptOutputs['text'] = $ENCODED

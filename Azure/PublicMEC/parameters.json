@@ -3,19 +3,13 @@
     "contentVersion": "1.0.0.0",
     "parameters": {
         "resourceName": {
-            "value": "dariusz-kube01"
+            "value": "dariusz-kube03"
         },
         "location": {
-            "value": "westus"
-        },
-        "dnsPrefix": {
-            "value": "dariusz-kube01-dns"
+            "value": "centralus"
         },
         "kubernetesVersion": {
             "value": "1.22.6"
-        },
-        "vnetName": {
-            "value": "dariusz-vnet01"
         },
         "localAddressPrefixes": {
             "value": ["10.16.0.0/16"]
@@ -25,9 +19,6 @@
         },
         "dnsServiceIP": {
             "value": "10.16.0.10"
-        },
-        "acrName": {
-            "value": "dariuszCR01"
         },
         "acrResourceGroup": {
             "value": "test02"

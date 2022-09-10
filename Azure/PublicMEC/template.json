@@ -14,12 +14,6 @@
                 "description": "The location of resources."
             }
         },
-        "dnsPrefix": {
-            "type": "string",
-            "metadata": {
-                "description": "Optional DNS prefix to use with hosted Kubernetes API server FQDN."
-            }
-        },
         "osDiskSizeGB": {
             "type": "int",
             "defaultValue": 0,
@@ -96,12 +90,6 @@
                 "description": "Boolean flag to turn on and off secret store CSI driver."
             }
         },
-        "acrName": {
-            "type": "string",
-            "metadata": {
-                "description": "Specify the name of the Azure Container Registry."
-            }
-        },
         "acrResourceGroup": {
             "type": "string",
             "metadata": {
@@ -121,9 +109,6 @@
             "metadata": {
                 "description": "Network policy used for building Kubernetes network."
             }
-        },
-        "vnetName": {
-            "type": "string"
         },
         "localAddressPrefixes": {
             "type": "array",
@@ -183,15 +168,16 @@
         }
     },
     "variables": {
-        "vnetId": "[resourceId(resourceGroup().name,'Microsoft.Network/virtualNetworks', parameters('vnetName'))]",
+        "dnsPrefix": "[parameters('resourceName')]",
+        "vnetName": "[concat(parameters('resourceName'), '-', parameters('location'),'-vnet')]",
+        "vnetId": "[resourceId(resourceGroup().name,'Microsoft.Network/virtualNetworks', variables('vnetName'))]",
         "appSubnetID": "[concat(variables('vnetId'), '/subnets/', parameters('appSubnetName'))]",
         "serviceSubnetID": "[concat(variables('vnetId'), '/subnets/', parameters('serviceSubnetName'))]",
-        "nfErName1": "[reference(concat('AKSClusterDeployment', parameters('acrResourceGroup'))).outputs.aksApiFQDN.value]",
-        "publicIpAddressEr1": "[concat(parameters('nfErName1'),'-ip')]",
-        "networkInterfaceEr1": "[concat(parameters('nfErName1'),'-netif')]",
-        "networkSecurityGroupName1": "[concat(variables('vnetId'), '/subnets/','-',parameters('location'),'-nsg1')]",
+        "publicIpAddressEr1": "[concat(variables('dnsPrefix'), '-', parameters('location'),'-ip')]",
+        "networkInterfaceEr1": "[concat(variables('dnsPrefix'), '-', parameters('location'),'-netif')]",
+        "networkSecurityGroupName1": "[concat(variables('dnsPrefix'), '-',parameters('location'),'-nsg1')]",
         "nsgId1": "[resourceId(resourceGroup().name, 'Microsoft.Network/networkSecurityGroups', variables('networkSecurityGroupName1'))]",
-        "cloudInit1": "[concat('#cloud-config\nruncmd:\n- [/opt/netfoundry/router-registration, ', reference('linkedTemplateCreateRouter').outputs.router_registration_key.value, ']')]"
+        "acrName": "[concat(variables('dnsPrefix'), '-Arc')]"
     },
     "resources": [
         {
@@ -228,7 +214,7 @@
             "resourceGroup": "[parameters('acrResourceGroup')]",
             "dependsOn": [
                 "[concat('Microsoft.ContainerService/managedClusters/', parameters('resourceName'))]",
-                "[concat('Microsoft.ContainerRegistry/registries/', parameters('acrName'))]"
+                "[concat('Microsoft.ContainerRegistry/registries/', variables('acrName'))]"
             ],
             "properties": {
                 "mode": "Incremental",
@@ -239,12 +225,12 @@
                         {
                             "apiVersion": "2018-09-01-preview",
                             "type": "Microsoft.ContainerRegistry/registries/providers/roleAssignments",
-                            "name": "[concat(parameters('acrName'), '/Microsoft.Authorization/', parameters('guidValue'))]",
+                            "name": "[concat(variables('acrName'), '/Microsoft.Authorization/', parameters('guidValue'))]",
                             "properties": {
                                 "principalId": "[reference(parameters('resourceName'), '2021-07-01').identityProfile.kubeletidentity.objectId]",
                                 "principalType": "ServicePrincipal",
                                 "roleDefinitionId": "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Authorization/roleDefinitions/', '7f951dda-4ed3-4680-a7ca-43fe172d538d')]",
-                                "scope": "[resourceId(parameters('acrResourceGroup'),'Microsoft.ContainerRegistry/registries/', parameters('acrName'))]"
+                                "scope": "[resourceId(parameters('acrResourceGroup'),'Microsoft.ContainerRegistry/registries/', variables('acrName'))]"
                             }
                         }
                     ]
@@ -252,7 +238,7 @@
             }
         },
         {
-            "name": "[parameters('acrName')]",
+            "name": "[variables('acrName')]",
             "type": "Microsoft.ContainerRegistry/registries",
             "apiVersion": "2021-09-01",
             "location": "[parameters('location')]",
@@ -269,13 +255,13 @@
             "type": "Microsoft.ContainerService/managedClusters",
             "apiVersion": "2021-07-01",
             "dependsOn": [
-                "[concat('Microsoft.Network/virtualNetworks/', parameters('vnetName'))]"
+                "[concat('Microsoft.Network/virtualNetworks/', variables('vnetName'))]"
             ],
             "location": "[parameters('location')]",
             "properties": {
                 "kubernetesVersion": "[parameters('kubernetesVersion')]",
                 "enableRBAC": "[parameters('enableRBAC')]",
-                "dnsPrefix": "[parameters('dnsPrefix')]",
+                "dnsPrefix": "[variables('dnsPrefix')]",
                 "agentPoolProfiles": [
                     {
                         "name": "agentpool",
@@ -330,7 +316,7 @@
             }
         },
         {
-            "name": "[parameters('vnetName')]",
+            "name": "[variables('vnetName')]",
             "type": "Microsoft.Network/virtualNetworks",
             "apiVersion": "2021-08-01",
             "location": "[parameters('location')]",
@@ -351,11 +337,11 @@
             "tags": {}
         },
         {
-            "name": "[concat(parameters('vnetName'), '/', parameters('serviceSubnetName'), '/Microsoft.Authorization/', guid(resourceGroup().id, deployment().name))]",
+            "name": "[concat(variables('vnetName'), '/', parameters('serviceSubnetName'), '/Microsoft.Authorization/', guid(resourceGroup().id, deployment().name))]",
             "type": "Microsoft.Network/virtualNetworks/subnets/providers/roleAssignments",
             "apiVersion": "2020-04-01-preview",
             "dependsOn": [
-                "[concat('Microsoft.Network/virtualNetworks/', parameters('vnetName'))]"
+                "[concat('Microsoft.Network/virtualNetworks/', variables('vnetName'))]"
             ],
             "properties": {
                 "roleDefinitionId": "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Authorization/roleDefinitions/', '4d97b98b-1d4f-4787-a291-c67834d212e7')]",
@@ -370,7 +356,7 @@
             "location": "[parameters('location')]",
             "dependsOn": [
                 "[concat('Microsoft.Network/networkSecurityGroups/', variables('networkSecurityGroupName1'))]",
-                "[concat('Microsoft.Network/virtualNetworks/', parameters('vnetName'))]",
+                "[concat('Microsoft.Network/virtualNetworks/', variables('vnetName'))]",
                 "[concat('Microsoft.Network/publicIpAddresses/', variables('publicIpAddressEr1'))]",
                 "[concat('Microsoft.ContainerService/managedClusters/', parameters('resourceName'))]"
             ],
@@ -450,69 +436,83 @@
             }
         },
         {
-            "type": "Microsoft.Compute/virtualMachines",
-            "apiVersion": "2021-11-01",
-            "name": "[variables('nfErName1')]",
-            "location": "[parameters('location')]",
+            "name": "[concat('VirtualMachineDeployment', parameters('location'))]",
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2021-04-01",
+            "resourceGroup": "[parameters('acrResourceGroup')]",
             "dependsOn": [
-                "[concat('Microsoft.Network/networkInterfaces/', variables('networkInterfaceEr1'))]",
                 "[resourceId('Microsoft.Resources/deployments', 'linkedTemplateCreateRouter')]",
-                "[concat('Microsoft.ContainerService/managedClusters/', parameters('resourceName'))]"
+                "[resourceId('Microsoft.Resources/deployments', concat('AKSClusterDeployment', parameters('acrResourceGroup')))]"
             ],
-            "plan": {
-                "name": "ziti-edge-router",
-                "product": "ziti-edge-router",
-                "publisher": "netfoundryinc"
-            },
             "properties": {
-                "hardwareProfile": {
-                    "vmSize": "Standard_B2s"
-                },
-                "storageProfile": {
-                    "osDisk": {
-                        "createOption": "fromImage",
-                        "managedDisk": {
-                            "storageAccountType": "Premium_LRS"
-                        },
-                        "deleteOption": "Delete"
-                    },
-                    "imageReference": {
-                        "publisher": "netfoundryinc",
-                        "offer": "ziti-edge-router",
-                        "sku": "ziti-edge-router",
-                        "version": "latest"
-                    }
-                },
-                "networkProfile": {
-                    "networkInterfaces": [
+                "mode": "Incremental",
+                "template": {
+                    "$schema": "https://schema.management.azure.com/schemas/2019-08-01/deploymentTemplate.json#",
+                    "contentVersion": "1.0.0.0",
+                    "resources": [
                         {
-                            "id": "[resourceId('Microsoft.Network/networkInterfaces', variables('networkInterfaceEr1'))]",
+                            "type": "Microsoft.Compute/virtualMachines",
+                            "apiVersion": "2021-11-01",
+                            "name": "[reference(concat('Microsoft.ContainerService/managedClusters/', parameters('resourceName'))).privateFQDN]",
+                            "location": "[parameters('location')]",
+                            "plan": {
+                                "name": "ziti-edge-router",
+                                "product": "ziti-edge-router",
+                                "publisher": "netfoundryinc"
+                            },
                             "properties": {
-                                "deleteOption": "Delete"
+                                "hardwareProfile": {
+                                    "vmSize": "Standard_B2s"
+                                },
+                                "storageProfile": {
+                                    "osDisk": {
+                                        "createOption": "fromImage",
+                                        "managedDisk": {
+                                            "storageAccountType": "Premium_LRS"
+                                        },
+                                        "deleteOption": "Delete"
+                                    },
+                                    "imageReference": {
+                                        "publisher": "netfoundryinc",
+                                        "offer": "ziti-edge-router",
+                                        "sku": "ziti-edge-router",
+                                        "version": "latest"
+                                    }
+                                },
+                                "networkProfile": {
+                                    "networkInterfaces": [
+                                        {
+                                            "id": "[resourceId('Microsoft.Network/networkInterfaces', variables('networkInterfaceEr1'))]",
+                                            "properties": {
+                                                "deleteOption": "Delete"
+                                            }
+                                        }
+                                    ]
+                                },
+                                "osProfile": {
+                                    "computerName": "[reference(concat('Microsoft.ContainerService/managedClusters/', parameters('resourceName'))).privateFQDN]",
+                                    "adminUsername": "ziggy",
+                                    "linuxConfiguration": {
+                                        "disablePasswordAuthentication": true,
+                                        "ssh": {
+                                            "publicKeys": [
+                                                {
+                                                    "path": "[concat('/home/ziggy/.ssh/authorized_keys')]",
+                                                    "keyData": "[parameters('adminPublicKey')]"
+                                                }
+                                            ]
+                                        }
+                                    },
+                                    "customData": "[base64(reference('linkedTemplateCreateRouter').outputs.router_registration_key.value)]"
+                                },
+                                "diagnosticsProfile": {
+                                    "bootDiagnostics": {
+                                        "enabled": true
+                                    }
+                                }
                             }
                         }
                     ]
-                },
-                "osProfile": {
-                    "computerName": "[variables('nfErName1')]",
-                    "adminUsername": "ziggy",
-                    "linuxConfiguration": {
-                        "disablePasswordAuthentication": true,
-                        "ssh": {
-                            "publicKeys": [
-                                {
-                                    "path": "[concat('/home/ziggy/.ssh/authorized_keys')]",
-                                    "keyData": "[parameters('adminPublicKey')]"
-                                }
-                            ]
-                        }
-                    },
-                    "customData": "[base64(variables('cloudInit1'))]"
-                },
-                "diagnosticsProfile": {
-                    "bootDiagnostics": {
-                        "enabled": true
-                    }
                 }
             }
         }
