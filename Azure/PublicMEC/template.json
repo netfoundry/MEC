@@ -184,6 +184,9 @@
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2021-04-01",
             "name": "linkedTemplateCreateRouter",
+            "dependsOn": [
+                "[concat('Microsoft.ContainerService/managedClusters/', variables('varPrefix'))]"
+            ],
             "properties": {
               "mode": "Incremental",
               "templateLink": {
