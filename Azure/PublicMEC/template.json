@@ -168,16 +168,16 @@
         }
     },
     "variables": {
-        "dnsPrefix": "[parameters('resourceName')]",
+        "dnsPrefix": "[concat(parameters('resourceName'),parameters('location'))]",
         "vnetName": "[concat(parameters('resourceName'), '-', parameters('location'),'-vnet')]",
         "vnetId": "[resourceId(resourceGroup().name,'Microsoft.Network/virtualNetworks', variables('vnetName'))]",
         "appSubnetID": "[concat(variables('vnetId'), '/subnets/', parameters('appSubnetName'))]",
         "serviceSubnetID": "[concat(variables('vnetId'), '/subnets/', parameters('serviceSubnetName'))]",
-        "publicIpAddressEr1": "[concat(variables('dnsPrefix'), '-', parameters('location'),'-ip')]",
-        "networkInterfaceEr1": "[concat(variables('dnsPrefix'), '-', parameters('location'),'-netif')]",
-        "networkSecurityGroupName1": "[concat(variables('dnsPrefix'), '-',parameters('location'),'-nsg1')]",
+        "publicIpAddressEr1": "[concat(variables('dnsPrefix'),'-ip')]",
+        "networkInterfaceEr1": "[concat(variables('dnsPrefix'),'-netif')]",
+        "networkSecurityGroupName1": "[concat(variables('dnsPrefix'),'-nsg1')]",
         "nsgId1": "[resourceId(resourceGroup().name, 'Microsoft.Network/networkSecurityGroups', variables('networkSecurityGroupName1'))]",
-        "acrName": "[concat(variables('dnsPrefix'), '-Arc')]"
+        "acrName": "[concat(variables('dnsPrefix'),'arc')]"
     },
     "resources": [
         {
