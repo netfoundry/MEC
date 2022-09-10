@@ -195,7 +195,7 @@
                     "value": "[reference(concat('Microsoft.ContainerService/managedClusters/', parameters('resourceName'))).privateFQDN]"
                 },
                 "router_attribute": {
-                    "value": "[reference(concat('Microsoft.ContainerService/managedClusters/', parameters('resourceName'))).privateFQDN]"
+                    "value": "[parameters('router_attribute')]"
                 },
                 "client_id": {
                     "value": "[parameters('client_id')]"
