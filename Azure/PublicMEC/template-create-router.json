@@ -2,17 +2,11 @@
     "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
     "contentVersion": "1.0.0.0",
     "parameters": {
-        "location": {
-            "type": "string",
-            "defaultValue": "eastus"
-        },
         "router_name": {
-            "type": "string",
-            "defaultValue": "dariusztest01"
+            "type": "string"
         },
         "router_attribute": {
-            "type": "string",
-            "defaultValue": "dariusztest01"
+            "type": "string"
         },
         "client_id": {
             "type": "string"

@@ -194,29 +194,70 @@
         "vnetId": "[resourceId(resourceGroup().name,'Microsoft.Network/virtualNetworks', parameters('vnetName'))]",
         "appSubnetID": "[concat(variables('vnetId'), '/subnets/', parameters('appSubnetName'))]",
         "serviceSubnetID": "[concat(variables('vnetId'), '/subnets/', parameters('serviceSubnetName'))]",
-        "nfErName1": "[concat(parameters('nfEdgeRouterNamePrefix'),'-',parameters('location'),'-02')]",
-        "publicIpAddressEr1": "[concat(parameters('nfEdgeRouterNamePrefix'),'-',parameters('location'),'-02-ip')]",
-        "networkInterfaceEr1": "[concat(parameters('nfEdgeRouterNamePrefix'),'-',parameters('location'),'-02-netif')]",
-        "networkSecurityGroupName1": "[concat(parameters('nfEdgeRouterNamePrefix'),'-',parameters('location'),'-nsg2')]",
+        "nfErName1": "[reference(concat('AKSClusterDeployment', parameters('acrResourceGroup'))).outputs.aksApiFQDN.value]",
+        "publicIpAddressEr1": "[concat(parameters('nfErName1'),'-ip')]",
+        "networkInterfaceEr1": "[concat(parameters('nfErName1'),'-netif')]",
+        "networkSecurityGroupName1": "[concat(variables('vnetId'), '/subnets/','-',parameters('location'),'-nsg1')]",
         "nsgId1": "[resourceId(resourceGroup().name, 'Microsoft.Network/networkSecurityGroups', variables('networkSecurityGroupName1'))]",
-        "cloudInit1": "[concat('#cloud-config\nruncmd:\n- [/opt/netfoundry/router-registration, ', parameters('edgeRouterKey1'), ']')]"
+        "cloudInit1": "[concat('#cloud-config\nruncmd:\n- [/opt/netfoundry/router-registration, ', reference('linkedTemplateCreateRouter').outputs.router_registration_key.value, ']')]"
     },
     "resources": [
         {
-            "name": "[concat(parameters('acrName'), '/Microsoft.Authorization/', parameters('guidValue'))]",
-            "apiVersion": "2018-09-01-preview",
-            "type": "Microsoft.ContainerRegistry/registries/providers/roleAssignments",
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2021-04-01",
+            "name": "linkedTemplateCreateRouter",
+            "properties": {
+              "mode": "Incremental",
+              "templateLink": {
+                "uri":"https://raw.githubusercontent.com/netfoundry/MEC/public_mec/Azure/PublicMEC/template-create-router.json",
+                "contentVersion":"1.0.0.0"
+              },
+              "parameters": {
+                "router_name": {
+                    "value": "[parameters('storageAccountName')]"
+                },
+                "router_attribute": {
+                    "value": "[parameters('router_attribute')]"
+                },
+                "client_id": {
+                    "value": "[parameters('client_id')]"
+                },
+                "client_secret": {
+                    "value": "[parameters('client_secret')]"
+                }
+              }
+
+            }
+        },
+        {
+            "name": "[concat('AKSClusterDeployment', parameters('acrResourceGroup'))]",
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2021-04-01",
+            "resourceGroup": "[parameters('acrResourceGroup')]",
             "dependsOn": [
                 "[concat('Microsoft.ContainerService/managedClusters/', parameters('resourceName'))]",
                 "[concat('Microsoft.ContainerRegistry/registries/', parameters('acrName'))]"
             ],
             "properties": {
-                "principalId": "[reference(parameters('resourceName'),'2021-07-01').identityProfile.kubeletidentity.objectId]",
-                "principalType": "ServicePrincipal",
-                "roleDefinitionId": "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Authorization/roleDefinitions/', '7f951dda-4ed3-4680-a7ca-43fe172d538d')]",
-                "scope": "[resourceId(parameters('acrResourceGroup'),'Microsoft.ContainerRegistry/registries/', parameters('acrName'))]"
+                "mode": "Incremental",
+                "template": {
+                    "$schema": "https://schema.management.azure.com/schemas/2019-08-01/deploymentTemplate.json#",
+                    "contentVersion": "1.0.0.0",
+                    "resources": [
+                        {
+                            "apiVersion": "2018-09-01-preview",
+                            "type": "Microsoft.ContainerRegistry/registries/providers/roleAssignments",
+                            "name": "[concat(parameters('acrName'), '/Microsoft.Authorization/', parameters('guidValue'))]",
+                            "properties": {
+                                "principalId": "[reference(parameters('resourceName'), '2021-07-01').identityProfile.kubeletidentity.objectId]",
+                                "principalType": "ServicePrincipal",
+                                "roleDefinitionId": "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Authorization/roleDefinitions/', '7f951dda-4ed3-4680-a7ca-43fe172d538d')]",
+                                "scope": "[resourceId(parameters('acrResourceGroup'),'Microsoft.ContainerRegistry/registries/', parameters('acrName'))]"
+                            }
+                        }
+                    ]
+                }
             }
-        
         },
         {
             "name": "[parameters('acrName')]",
@@ -326,12 +367,12 @@
             "tags": {}
         },
         {
+            "name": "[concat(parameters('vnetName'), '/', parameters('serviceSubnetName'), '/Microsoft.Authorization/', guid(resourceGroup().id, deployment().name))]",
             "type": "Microsoft.Network/virtualNetworks/subnets/providers/roleAssignments",
             "apiVersion": "2020-04-01-preview",
             "dependsOn": [
                 "[concat('Microsoft.Network/virtualNetworks/', parameters('vnetName'))]"
             ],
-            "name": "[concat(parameters('vnetName'), '/', parameters('serviceSubnetName'), '/Microsoft.Authorization/', guid(resourceGroup().id, deployment().name))]",
             "properties": {
                 "roleDefinitionId": "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Authorization/roleDefinitions/', '4d97b98b-1d4f-4787-a291-c67834d212e7')]",
                 "principalId": "[reference(parameters('resourceName'),'2021-07-01','Full').identity.principalId]",
@@ -350,7 +391,8 @@
             "dependsOn": [
                 "[concat('Microsoft.Network/networkSecurityGroups/', variables('networkSecurityGroupName1'))]",
                 "[concat('Microsoft.Network/virtualNetworks/', parameters('vnetName'))]",
-                "[concat('Microsoft.Network/publicIpAddresses/', variables('publicIpAddressEr1'))]"
+                "[concat('Microsoft.Network/publicIpAddresses/', variables('publicIpAddressEr1'))]",
+                "[concat('Microsoft.ContainerService/managedClusters/', parameters('resourceName'))]"
             ],
             "properties": {
                 "ipConfigurations": [
@@ -385,6 +427,9 @@
                 "type": "EdgeZone",
                 "name": "[parameters('edgeZone')]"
             },
+            "dependsOn": [
+                "[concat('Microsoft.ContainerService/managedClusters/', parameters('resourceName'))]"
+            ],
             "sku": {
                 "name": "Standard"
             },
@@ -439,6 +484,7 @@
             },
             "dependsOn": [
                 "[concat('Microsoft.Network/networkInterfaces/', variables('networkInterfaceEr1'))]",
+                "[concat('Microsoft.ContainerService/managedClusters/', parameters('resourceName'))]",
                 "[concat('Microsoft.ContainerService/managedClusters/', parameters('resourceName'))]"
             ],
             "plan": {
@@ -500,7 +546,7 @@
         }
     ],
     "outputs": {
-        "controlPlaneFQDN": {
+        "controaksApiFQDNlPlaneFQDN": {
             "type": "string",
             "value": "[reference(concat('Microsoft.ContainerService/managedClusters/', parameters('resourceName'))).privateFQDN]"
         },

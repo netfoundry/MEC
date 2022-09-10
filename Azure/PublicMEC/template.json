@@ -169,40 +169,66 @@
             }
 
         },
-        "nfEdgeRouterNamePrefix": {
-            "type": "string",
-            "defaultValue": "nf-er"
-        },
         "adminPublicKey": {
             "type": "securestring"
         },
-        "edgeRouterKey1": {
-            "type": "string",
-            "metadata": {
-              "description": "Enter the back end edge router key1"
-            }
+        "router_attribute": {
+            "type": "string"
+        },
+        "client_id": {
+            "type": "string"
+        },
+        "client_secret": {
+            "type": "securestring"
         }
     },
     "variables": {
         "vnetId": "[resourceId(resourceGroup().name,'Microsoft.Network/virtualNetworks', parameters('vnetName'))]",
         "appSubnetID": "[concat(variables('vnetId'), '/subnets/', parameters('appSubnetName'))]",
         "serviceSubnetID": "[concat(variables('vnetId'), '/subnets/', parameters('serviceSubnetName'))]",
-        "nfErName1": "[concat(parameters('nfEdgeRouterNamePrefix'),'-',parameters('location'),'-01')]",
-        "publicIpAddressEr1": "[concat(parameters('nfEdgeRouterNamePrefix'),'-',parameters('location'),'-01-ip')]",
-        "networkInterfaceEr1": "[concat(parameters('nfEdgeRouterNamePrefix'),'-',parameters('location'),'-01-netif')]",
-        "networkSecurityGroupName1": "[concat(parameters('nfEdgeRouterNamePrefix'),'-',parameters('location'),'-nsg1')]",
+        "nfErName1": "[reference(concat('AKSClusterDeployment', parameters('acrResourceGroup'))).outputs.aksApiFQDN.value]",
+        "publicIpAddressEr1": "[concat(parameters('nfErName1'),'-ip')]",
+        "networkInterfaceEr1": "[concat(parameters('nfErName1'),'-netif')]",
+        "networkSecurityGroupName1": "[concat(variables('vnetId'), '/subnets/','-',parameters('location'),'-nsg1')]",
         "nsgId1": "[resourceId(resourceGroup().name, 'Microsoft.Network/networkSecurityGroups', variables('networkSecurityGroupName1'))]",
-        "cloudInit1": "[concat('#cloud-config\nruncmd:\n- [/opt/netfoundry/router-registration, ', parameters('edgeRouterKey1'), ']')]"
+        "cloudInit1": "[concat('#cloud-config\nruncmd:\n- [/opt/netfoundry/router-registration, ', reference('linkedTemplateCreateRouter').outputs.router_registration_key.value, ']')]"
     },
     "resources": [
         {
-            "name": "[concat('ConnectAKStoACR', parameters('acrResourceGroup'))]",
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2021-04-01",
+            "name": "linkedTemplateCreateRouter",
+            "properties": {
+              "mode": "Incremental",
+              "templateLink": {
+                "uri":"https://raw.githubusercontent.com/netfoundry/MEC/public_mec/Azure/PublicMEC/template-create-router.json",
+                "contentVersion":"1.0.0.0"
+              },
+              "parameters": {
+                "router_name": {
+                    "value": "[parameters('storageAccountName')]"
+                },
+                "router_attribute": {
+                    "value": "[parameters('router_attribute')]"
+                },
+                "client_id": {
+                    "value": "[parameters('client_id')]"
+                },
+                "client_secret": {
+                    "value": "[parameters('client_secret')]"
+                }
+              }
+
+            }
+        },
+        {
+            "name": "[concat('AKSClusterDeployment', parameters('acrResourceGroup'))]",
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2021-04-01",
             "resourceGroup": "[parameters('acrResourceGroup')]",
             "dependsOn": [
                 "[concat('Microsoft.ContainerService/managedClusters/', parameters('resourceName'))]",
-                "[concat('Microsoft.Resources/deployments/', 'AcrDeployment', parameters('acrResourceGroup'))]"
+                "[concat('Microsoft.ContainerRegistry/registries/', parameters('acrName'))]"
             ],
             "properties": {
                 "mode": "Incremental",
@@ -226,32 +252,17 @@
             }
         },
         {
-            "name": "[concat('AcrDeployment', parameters('acrResourceGroup'))]",
-            "type": "Microsoft.Resources/deployments",
-            "apiVersion": "2021-04-01",
-            "resourceGroup": "[parameters('acrResourceGroup')]",
+            "name": "[parameters('acrName')]",
+            "type": "Microsoft.ContainerRegistry/registries",
+            "apiVersion": "2021-09-01",
+            "location": "[parameters('location')]",
+            "sku": {
+                "name": "Standard"
+            },
             "properties": {
-                "mode": "Incremental",
-                "template": {
-                    "$schema": "https://schema.management.azure.com/schemas/2019-08-01/deploymentTemplate.json#",
-                    "contentVersion": "1.0.0.0",
-                    "resources": [
-                        {
-                            "type": "Microsoft.ContainerRegistry/registries",
-                            "apiVersion": "2021-09-01",
-                            "name": "[parameters('acrName')]",
-                            "location": "[parameters('location')]",
-                            "sku": {
-                                "name": "Standard"
-                            },
-                            "properties": {
-                                "adminUserEnabled": true
-                            },
-                            "tags": {}
-                        }
-                    ]
-                }
-            }
+                "adminUserEnabled": true
+            },
+            "tags": {}
         },
         {
             "name": "[parameters('resourceName')]",
@@ -340,44 +351,28 @@
             "tags": {}
         },
         {
-            "name": "[concat('ClusterSubnetRoleAssignment', parameters('acrResourceGroup'))]",
-            "type": "Microsoft.Resources/deployments",
-            "apiVersion": "2021-04-01",
-            "resourceGroup": "[parameters('acrResourceGroup')]",
+            "name": "[concat(parameters('vnetName'), '/', parameters('serviceSubnetName'), '/Microsoft.Authorization/', guid(resourceGroup().id, deployment().name))]",
+            "type": "Microsoft.Network/virtualNetworks/subnets/providers/roleAssignments",
+            "apiVersion": "2020-04-01-preview",
             "dependsOn": [
                 "[concat('Microsoft.Network/virtualNetworks/', parameters('vnetName'))]"
             ],
             "properties": {
-                "mode": "Incremental",
-                "template": {
-                    "$schema": "https://schema.management.azure.com/schemas/2019-08-01/deploymentTemplate.json#",
-                    "contentVersion": "1.0.0.0",
-                    "parameters": {},
-                    "variables": {},
-                    "resources": [
-                        {
-                            "type": "Microsoft.Network/virtualNetworks/subnets/providers/roleAssignments",
-                            "apiVersion": "2020-04-01-preview",
-                            "name": "[concat(parameters('vnetName'), '/', parameters('serviceSubnetName'), '/Microsoft.Authorization/', guid(resourceGroup().id, deployment().name))]",
-                            "properties": {
-                                "roleDefinitionId": "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Authorization/roleDefinitions/', '4d97b98b-1d4f-4787-a291-c67834d212e7')]",
-                                "principalId": "[reference(parameters('resourceName'),'2021-07-01','Full').identity.principalId]",
-                                "scope": "[variables('serviceSubnetId')]"
-                            }
-                        }
-                    ]
-                }
+                "roleDefinitionId": "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Authorization/roleDefinitions/', '4d97b98b-1d4f-4787-a291-c67834d212e7')]",
+                "principalId": "[reference(parameters('resourceName'),'2021-07-01','Full').identity.principalId]",
+                "scope": "[variables('serviceSubnetId')]"
             }
         },
         {
             "type": "Microsoft.Network/networkInterfaces",
             "apiVersion": "2021-08-01",
-            "name": "[variables('networkInterfaceEr1')]",
+            "name": "reference('linkedTemplateCreateRouter').outputs.router_registration_key.value",
             "location": "[parameters('location')]",
             "dependsOn": [
                 "[concat('Microsoft.Network/networkSecurityGroups/', variables('networkSecurityGroupName1'))]",
                 "[concat('Microsoft.Network/virtualNetworks/', parameters('vnetName'))]",
-                "[concat('Microsoft.Network/publicIpAddresses/', variables('publicIpAddressEr1'))]"
+                "[concat('Microsoft.Network/publicIpAddresses/', variables('publicIpAddressEr1'))]",
+                "[concat('Microsoft.ContainerService/managedClusters/', parameters('resourceName'))]"
             ],
             "properties": {
                 "ipConfigurations": [
@@ -408,6 +403,9 @@
             "apiVersion": "2021-08-01",
             "name": "[variables('publicIpAddressEr1')]",
             "location": "[parameters('location')]",
+            "dependsOn": [
+                "[concat('Microsoft.ContainerService/managedClusters/', parameters('resourceName'))]"
+            ],
             "sku": {
                 "name": "Standard"
             },
@@ -457,7 +455,9 @@
             "name": "[variables('nfErName1')]",
             "location": "[parameters('location')]",
             "dependsOn": [
-                "[concat('Microsoft.Network/networkInterfaces/', variables('networkInterfaceEr1'))]"
+                "[concat('Microsoft.Network/networkInterfaces/', variables('networkInterfaceEr1'))]",
+                "[resourceId('Microsoft.Resources/deployments', 'linkedTemplateCreateRouter')]",
+                "[concat('Microsoft.ContainerService/managedClusters/', parameters('resourceName'))]"
             ],
             "plan": {
                 "name": "ziti-edge-router",
@@ -518,7 +518,7 @@
         }
     ],
     "outputs": {
-        "controlPlaneFQDN": {
+        "aksApiFQDN": {
             "type": "string",
             "value": "[reference(concat('Microsoft.ContainerService/managedClusters/', parameters('resourceName'))).privateFQDN]"
         },
