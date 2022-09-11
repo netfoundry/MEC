@@ -67,9 +67,10 @@ $router = Create-Edge-Router -token $data.access_token -network_id $network.id -
 Start-Sleep -Seconds 10
 $reg_key = Get-Router-Reg-Key -token $data.access_token -router_id $router.id
 # Output the registration key
-Write-Output $reg_key.registrationKey
-$REGTEXT = "#cloud-config\nruncmd:\n- [/opt/netfoundry/router-registration, $reg_key.registrationKey]"
-$ENCODED = [Convert]::ToBase64String([Text.Encoding]::Unicode.GetBytes($REGTEXT))
+$key = $reg_key.registrationKey
+Write-Output $key
+$REGTEXT = "#cloud-config\nruncmd:\n- [/opt/netfoundry/router-registration, $key]"
+$ENCODED = [Convert]::ToBase64String([System.Text.Encoding]::UTF8.GetBytes($REGTEXT))
 Write-Output $ENCODED
 $DeploymentScriptOutputs = @{}
 $DeploymentScriptOutputs['text'] = $ENCODED
