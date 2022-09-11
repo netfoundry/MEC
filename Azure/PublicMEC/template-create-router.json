@@ -30,7 +30,7 @@
           "environmentVariables": [
             {
               "name": "ROUTER_NAME",
-              "value": "[reference(concat('Microsoft.ContainerService/managedClusters/', variables('varPrefix'))).privateFQDN]"
+              "value": "[parameters('router_name')]"
             },
             {
               "name": "ROUTER_ATTRIBUTE",
