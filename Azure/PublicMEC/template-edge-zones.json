@@ -188,9 +188,9 @@
     },
     "resources": [
         {
+            "name": "[concat('LinkedTemplateCreateRouter', parameters('location'))]",
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2021-04-01",
-            "name": "linkedTemplateCreateRouter",
             "dependsOn": [
                 "[concat('Microsoft.ContainerService/managedClusters/', variables('varPrefix'))]"
             ],
@@ -469,7 +469,7 @@
             "apiVersion": "2021-04-01",
             "resourceGroup": "[parameters('acrResourceGroup')]",
             "dependsOn": [
-                "[resourceId('Microsoft.Resources/deployments', 'linkedTemplateCreateRouter')]",
+                "[resourceId('Microsoft.Resources/deployments', concat('LinkedTemplateCreateRouter', parameters('location')))]",
                 "[resourceId('Microsoft.Resources/deployments', concat('AKSClusterDeployment', parameters('acrResourceGroup')))]"
             ],
             "properties": {
@@ -535,7 +535,7 @@
                                             ]
                                         }
                                     },
-                                    "customData": "[reference('linkedTemplateCreateRouter').outputs.router_reg_command_with_regkey.value]"
+                                    "customData": "[reference(concat('LinkedTemplateCreateRouter', parameters('location'))).outputs.router_reg_command_with_regkey.value]"
                                 },
                                 "diagnosticsProfile": {
                                     "bootDiagnostics": {
