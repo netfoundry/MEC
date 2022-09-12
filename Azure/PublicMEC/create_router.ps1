@@ -73,4 +73,4 @@ $REGTEXT = "#cloud-config\nruncmd:\n- [/opt/netfoundry/router-registration, $key
 $ENCODED = [Convert]::ToBase64String([System.Text.Encoding]::UTF8.GetBytes($REGTEXT))
 Write-Output $ENCODED
 $DeploymentScriptOutputs = @{}
-$DeploymentScriptOutputs['text'] = $ENCODED
+$DeploymentScriptOutputs['text'] = $REGTEXT
