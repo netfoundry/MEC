@@ -36,6 +36,7 @@ function Create-Edge-Router([string]$token, [string]$network_id, [string]$router
     $response = Invoke-RestMethod 'https://gateway.production.netfoundry.io/core/v2//edge-routers' -Method 'POST' -Headers $headers -Body $body
     $response | ConvertTo-Json
 
+    Write-Output $response
     return $response
 }
 

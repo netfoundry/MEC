@@ -2,7 +2,7 @@
     "$schema": "https://schema.management.azure.com/schemas/2019-08-01/deploymentTemplate.json#",
     "contentVersion": "1.0.0.0",
     "parameters": {
-        "dnsPrefix": {
+        "resourceName": {
             "type": "string",
             "metadata": {
                 "description": "The name of the Managed Cluster resource."
@@ -19,6 +19,12 @@
             "defaultValue": "attatlanta1",
             "metadata": {
                 "description": "The edge zone location of resources."
+            }
+        },
+        "dnsPrefix": {
+            "type": "string",
+            "metadata": {
+                "description": "Optional DNS prefix to use with hosted Kubernetes API server FQDN."
             }
         },
         "osDiskSizeGB": {
@@ -97,6 +103,12 @@
                 "description": "Boolean flag to turn on and off secret store CSI driver."
             }
         },
+        "acrName": {
+            "type": "string",
+            "metadata": {
+                "description": "Specify the name of the Azure Container Registry."
+            }
+        },
         "acrResourceGroup": {
             "type": "string",
             "metadata": {
@@ -116,6 +128,9 @@
             "metadata": {
                 "description": "Network policy used for building Kubernetes network."
             }
+        },
+        "vnetName": {
+            "type": "string"
         },
         "localAddressPrefixes": {
             "type": "array",
@@ -161,39 +176,36 @@
             }
 
         },
+        "nfEdgeRouterNamePrefix": {
+            "type": "string",
+            "defaultValue": "nf-er"
+        },
         "adminPublicKey": {
             "type": "securestring"
         },
-        "router_attribute": {
-            "type": "string"
-        },
-        "client_id": {
-            "type": "string"
-        },
-        "client_secret": {
-            "type": "securestring"
+        "edgeRouterKey1": {
+            "type": "string",
+            "metadata": {
+              "description": "Enter the back end edge router key1"
+            }
         }
     },
     "variables": {
-        "varPrefix": "[concat(parameters('dnsPrefix'),parameters('location'))]",
-        "vnetName": "[concat(variables('varPrefix'),'-vnet')]",
-        "vnetId": "[resourceId(resourceGroup().name,'Microsoft.Network/virtualNetworks', variables('vnetName'))]",
+        "vnetId": "[resourceId(resourceGroup().name,'Microsoft.Network/virtualNetworks', parameters('vnetName'))]",
         "appSubnetID": "[concat(variables('vnetId'), '/subnets/', parameters('appSubnetName'))]",
         "serviceSubnetID": "[concat(variables('vnetId'), '/subnets/', parameters('serviceSubnetName'))]",
-        "publicIpAddressEr1": "[concat(variables('varPrefix'),'-ip')]",
-        "networkInterfaceEr1": "[concat(variables('varPrefix'),'-netif')]",
-        "networkSecurityGroupName1": "[concat(variables('varPrefix'),'-nsg1')]",
+        "nfErName1": "[reference(concat('AKSClusterDeployment', parameters('acrResourceGroup'))).outputs.aksApiFQDN.value]",
+        "publicIpAddressEr1": "[concat(variables('nfErName1'),'-ip')]",
+        "networkInterfaceEr1": "[concat(variables('nfErName1'),'-netif')]",
+        "networkSecurityGroupName1": "[concat(variables('vnetId'), '/subnets/','-',parameters('location'),'-nsg1')]",
         "nsgId1": "[resourceId(resourceGroup().name, 'Microsoft.Network/networkSecurityGroups', variables('networkSecurityGroupName1'))]",
-        "acrName": "[concat(variables('varPrefix'),'arc')]"
+        "cloudInit1": "[concat('#cloud-config\nruncmd:\n- [/opt/netfoundry/router-registration, ', reference('linkedTemplateCreateRouter').outputs.router_registration_key.value, ']')]"
     },
     "resources": [
         {
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2021-04-01",
             "name": "linkedTemplateCreateRouter",
-            "dependsOn": [
-                "[concat('Microsoft.ContainerService/managedClusters/', variables('varPrefix'))]"
-            ],
             "properties": {
               "mode": "Incremental",
               "templateLink": {
@@ -202,7 +214,7 @@
               },
               "parameters": {
                 "router_name": {
-                    "value": "[reference(concat('Microsoft.ContainerService/managedClusters/', variables('varPrefix'))).privateFQDN]"
+                    "value": "[parameters('storageAccountName')]"
                 },
                 "router_attribute": {
                     "value": "[parameters('router_attribute')]"
@@ -214,6 +226,7 @@
                     "value": "[parameters('client_secret')]"
                 }
               }
+
             }
         },
         {
@@ -222,8 +235,8 @@
             "apiVersion": "2021-04-01",
             "resourceGroup": "[parameters('acrResourceGroup')]",
             "dependsOn": [
-                "[concat('Microsoft.ContainerService/managedClusters/', variables('varPrefix'))]",
-                "[concat('Microsoft.ContainerRegistry/registries/', variables('acrName'))]"
+                "[concat('Microsoft.ContainerService/managedClusters/', parameters('resourceName'))]",
+                "[concat('Microsoft.ContainerRegistry/registries/', parameters('acrName'))]"
             ],
             "properties": {
                 "mode": "Incremental",
@@ -234,12 +247,12 @@
                         {
                             "apiVersion": "2018-09-01-preview",
                             "type": "Microsoft.ContainerRegistry/registries/providers/roleAssignments",
-                            "name": "[concat(variables('acrName'), '/Microsoft.Authorization/', parameters('guidValue'))]",
+                            "name": "[concat(parameters('acrName'), '/Microsoft.Authorization/', parameters('guidValue'))]",
                             "properties": {
-                                "principalId": "[reference(variables('varPrefix'), '2021-07-01').identityProfile.kubeletidentity.objectId]",
+                                "principalId": "[reference(parameters('resourceName'), '2021-07-01').identityProfile.kubeletidentity.objectId]",
                                 "principalType": "ServicePrincipal",
                                 "roleDefinitionId": "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Authorization/roleDefinitions/', '7f951dda-4ed3-4680-a7ca-43fe172d538d')]",
-                                "scope": "[resourceId(parameters('acrResourceGroup'),'Microsoft.ContainerRegistry/registries/', variables('acrName'))]"
+                                "scope": "[resourceId(parameters('acrResourceGroup'),'Microsoft.ContainerRegistry/registries/', parameters('acrName'))]"
                             }
                         }
                     ]
@@ -247,7 +260,7 @@
             }
         },
         {
-            "name": "[variables('acrName')]",
+            "name": "[parameters('acrName')]",
             "type": "Microsoft.ContainerRegistry/registries",
             "apiVersion": "2021-09-01",
             "location": "[parameters('location')]",
@@ -260,11 +273,11 @@
             "tags": {}
         },
         {
-            "name": "[variables('varPrefix')]",
+            "name": "[parameters('resourceName')]",
             "type": "Microsoft.ContainerService/managedClusters",
             "apiVersion": "2021-07-01",
             "dependsOn": [
-                "[concat('Microsoft.Network/virtualNetworks/', variables('vnetName'))]"
+                "[concat('Microsoft.Network/virtualNetworks/', parameters('vnetName'))]"
             ],
             "location": "[parameters('location')]",
             "extendedLocation": {
@@ -329,7 +342,7 @@
             }
         },
         {
-            "name": "[variables('vnetName')]",
+            "name": "[parameters('vnetName')]",
             "type": "Microsoft.Network/virtualNetworks",
             "apiVersion": "2021-08-01",
             "location": "[parameters('location')]",
@@ -354,22 +367,22 @@
             "tags": {}
         },
         {
-            "name": "[concat(variables('vnetName'), '/', parameters('serviceSubnetName'), '/Microsoft.Authorization/', guid(resourceGroup().id, deployment().name))]",
+            "name": "[concat(parameters('vnetName'), '/', parameters('serviceSubnetName'), '/Microsoft.Authorization/', guid(resourceGroup().id, deployment().name))]",
             "type": "Microsoft.Network/virtualNetworks/subnets/providers/roleAssignments",
             "apiVersion": "2020-04-01-preview",
             "dependsOn": [
-                "[concat('Microsoft.Network/virtualNetworks/', variables('vnetName'))]"
+                "[concat('Microsoft.Network/virtualNetworks/', parameters('vnetName'))]"
             ],
             "properties": {
                 "roleDefinitionId": "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Authorization/roleDefinitions/', '4d97b98b-1d4f-4787-a291-c67834d212e7')]",
-                "principalId": "[reference(variables('varPrefix'),'2021-07-01','Full').identity.principalId]",
+                "principalId": "[reference(parameters('resourceName'),'2021-07-01','Full').identity.principalId]",
                 "scope": "[variables('serviceSubnetId')]"
             }
         },
         {
-            "name": "[variables('networkInterfaceEr1')]",
             "type": "Microsoft.Network/networkInterfaces",
             "apiVersion": "2021-08-01",
+            "name": "[variables('networkInterfaceEr1')]",
             "location": "[parameters('location')]",
             "extendedLocation": {
                 "type": "EdgeZone",
@@ -377,9 +390,9 @@
             },
             "dependsOn": [
                 "[concat('Microsoft.Network/networkSecurityGroups/', variables('networkSecurityGroupName1'))]",
-                "[concat('Microsoft.Network/virtualNetworks/', variables('vnetName'))]",
+                "[concat('Microsoft.Network/virtualNetworks/', parameters('vnetName'))]",
                 "[concat('Microsoft.Network/publicIpAddresses/', variables('publicIpAddressEr1'))]",
-                "[concat('Microsoft.ContainerService/managedClusters/', variables('varPrefix'))]"
+                "[concat('Microsoft.ContainerService/managedClusters/', parameters('resourceName'))]"
             ],
             "properties": {
                 "ipConfigurations": [
@@ -406,16 +419,16 @@
             }
         },
         {
-            "name": "[variables('publicIpAddressEr1')]",
             "type": "Microsoft.Network/publicIpAddresses",
             "apiVersion": "2021-08-01",
+            "name": "[variables('publicIpAddressEr1')]",
             "location": "[parameters('location')]",
             "extendedLocation": {
                 "type": "EdgeZone",
                 "name": "[parameters('edgeZone')]"
             },
             "dependsOn": [
-                "[concat('Microsoft.ContainerService/managedClusters/', variables('varPrefix'))]"
+                "[concat('Microsoft.ContainerService/managedClusters/', parameters('resourceName'))]"
             ],
             "sku": {
                 "name": "Standard"
@@ -425,9 +438,9 @@
             }
         },
         {
-            "name": "[variables('networkSecurityGroupName1')]",
             "type": "Microsoft.Network/networkSecurityGroups",
             "apiVersion": "2021-08-01",
+            "name": "[variables('networkSecurityGroupName1')]",
             "location": "[parameters('location')]",
             "properties": {
                 "securityRules": [
@@ -461,95 +474,81 @@
             }
         },
         {
-            "name": "[concat('VirtualMachineDeployment', parameters('location'))]",
-            "type": "Microsoft.Resources/deployments",
-            "apiVersion": "2021-04-01",
-            "resourceGroup": "[parameters('acrResourceGroup')]",
+            "type": "Microsoft.Compute/virtualMachines",
+            "apiVersion": "2021-11-01",
+            "name": "[reference(concat('Microsoft.ContainerService/managedClusters/', parameters('resourceName'))).privateFQDN]",
+            "location": "[parameters('location')]",
+            "extendedLocation": {
+                "type": "EdgeZone",
+                "name": "[parameters('edgeZone')]"
+            },
             "dependsOn": [
-                "[resourceId('Microsoft.Resources/deployments', 'linkedTemplateCreateRouter')]",
-                "[resourceId('Microsoft.Resources/deployments', concat('AKSClusterDeployment', parameters('acrResourceGroup')))]"
+                "[concat('Microsoft.Network/networkInterfaces/', variables('networkInterfaceEr1'))]",
+                "[concat('Microsoft.ContainerService/managedClusters/', parameters('resourceName'))]",
+                "[concat('Microsoft.ContainerService/managedClusters/', parameters('resourceName'))]"
             ],
+            "plan": {
+                "name": "ziti-edge-router",
+                "product": "ziti-edge-router",
+                "publisher": "netfoundryinc"
+            },
             "properties": {
-                "mode": "Incremental",
-                "template": {
-                    "$schema": "https://schema.management.azure.com/schemas/2019-08-01/deploymentTemplate.json#",
-                    "contentVersion": "1.0.0.0",
-                    "resources": [
+                "hardwareProfile": {
+                    "vmSize": "Standard_B2s"
+                },
+                "storageProfile": {
+                    "osDisk": {
+                        "createOption": "fromImage",
+                        "managedDisk": {
+                            "storageAccountType": "Premium_LRS"
+                        },
+                        "deleteOption": "Delete"
+                    },
+                    "imageReference": {
+                        "publisher": "netfoundryinc",
+                        "offer": "ziti-edge-router",
+                        "sku": "ziti-edge-router",
+                        "version": "latest"
+                    }
+                },
+                "networkProfile": {
+                    "networkInterfaces": [
                         {
-                            "type": "Microsoft.Compute/virtualMachines",
-                            "apiVersion": "2021-11-01",
-                            "name": "[concat(variables('varPrefix'),'-er')]",
-                            "location": "[parameters('location')]",
-                            "extendedLocation": {
-                                "type": "EdgeZone",
-                                "name": "[parameters('edgeZone')]"
-                            },
-                            "plan": {
-                                "name": "ziti-edge-router",
-                                "product": "ziti-edge-router",
-                                "publisher": "netfoundryinc"
-                            },
+                            "id": "[resourceId('Microsoft.Network/networkInterfaces', variables('networkInterfaceEr1'))]",
                             "properties": {
-                                "hardwareProfile": {
-                                    "vmSize": "Standard_B2s"
-                                },
-                                "storageProfile": {
-                                    "osDisk": {
-                                        "createOption": "fromImage",
-                                        "managedDisk": {
-                                            "storageAccountType": "Premium_LRS"
-                                        },
-                                        "deleteOption": "Delete"
-                                    },
-                                    "imageReference": {
-                                        "publisher": "netfoundryinc",
-                                        "offer": "ziti-edge-router",
-                                        "sku": "ziti-edge-router",
-                                        "version": "latest"
-                                    }
-                                },
-                                "networkProfile": {
-                                    "networkInterfaces": [
-                                        {
-                                            "id": "[resourceId('Microsoft.Network/networkInterfaces', variables('networkInterfaceEr1'))]",
-                                            "properties": {
-                                                "deleteOption": "Delete"
-                                            }
-                                        }
-                                    ]
-                                },
-                                "osProfile": {
-                                    "computerName": "[concat(variables('varPrefix'),'-er')]",
-                                    "adminUsername": "ziggy",
-                                    "linuxConfiguration": {
-                                        "disablePasswordAuthentication": true,
-                                        "ssh": {
-                                            "publicKeys": [
-                                                {
-                                                    "path": "[concat('/home/ziggy/.ssh/authorized_keys')]",
-                                                    "keyData": "[parameters('adminPublicKey')]"
-                                                }
-                                            ]
-                                        }
-                                    },
-                                    "customData": "[reference('linkedTemplateCreateRouter').outputs.router_reg_command_with_regkey.value]"
-                                },
-                                "diagnosticsProfile": {
-                                    "bootDiagnostics": {
-                                        "enabled": true
-                                    }
-                                }
+                                "deleteOption": "Delete"
                             }
                         }
                     ]
+                },
+                "osProfile": {
+                    "computerName": "[reference(concat('Microsoft.ContainerService/managedClusters/', parameters('resourceName'))).privateFQDN]",
+                    "adminUsername": "ziggy",
+                    "linuxConfiguration": {
+                        "disablePasswordAuthentication": true,
+                        "ssh": {
+                            "publicKeys": [
+                                {
+                                    "path": "[concat('/home/ziggy/.ssh/authorized_keys')]",
+                                    "keyData": "[parameters('adminPublicKey')]"
+                                }
+                            ]
+                        }
+                    },
+                    "customData": "[base64(variables('cloudInit1'))]"
+                },
+                "diagnosticsProfile": {
+                    "bootDiagnostics": {
+                        "enabled": true
+                    }
                 }
             }
         }
     ],
     "outputs": {
-        "aksApiFQDN": {
+        "controaksApiFQDNlPlaneFQDN": {
             "type": "string",
-            "value": "[reference(concat('Microsoft.ContainerService/managedClusters/', variables('varPrefix'))).privateFQDN]"
+            "value": "[reference(concat('Microsoft.ContainerService/managedClusters/', parameters('resourceName'))).privateFQDN]"
         },
         "nfErName1": {
             "type": "string",

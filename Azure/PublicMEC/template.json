@@ -505,7 +505,7 @@
                                             ]
                                         }
                                     },
-                                    "customData": "[base64(reference('linkedTemplateCreateRouter').outputs.router_reg_command_with_regkey.value)]"
+                                    "customData": "[reference('linkedTemplateCreateRouter').outputs.router_reg_command_with_regkey.value]"
                                 },
                                 "diagnosticsProfile": {
                                     "bootDiagnostics": {

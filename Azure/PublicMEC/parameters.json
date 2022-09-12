@@ -6,7 +6,7 @@
             "value": "dkube"
         },
         "location": {
-            "value": "centralus"
+            "value": "eastus2"
         },
         "kubernetesVersion": {
             "value": "1.22.6"

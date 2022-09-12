@@ -15,8 +15,12 @@ az aks install-cli
 * Downloads credentials and configures the Kubernetes CLI to use them.
 * Uses ~/.kube/config, the default location for the Kubernetes configuration file. Specify a different location for your Kubernetes configuration file using --file argument.
 ```bash
-az aks get-credentials --resource-group myResourceGroup --name myAKSCluster
+az aks get-credentials --resource-group myResourceGroup --name myAKSCluster --subscription mySubscription
 ```
+
+kubectl config get-contexts
+kubectl config delete-context  {Cluster_Name_1}
+
 
 3. Verify the connection to your cluster using the kubectl get command. This command returns a list of the cluster nodes.
 ```bash
@@ -32,6 +36,8 @@ aks-nodepool1-31718369-0   Ready    agent   6m44s   v1.12.8
 Run the following to deploy an aks cluster with one node and NF Edge Router into the same Resource Group. After the deployment is complete, cloud admins can access the cluster through the NF Network without exposing any cluster API/Management ports to the Internet.   
 ```bash
 az deployment group create --name dariuszaks --subscription "53d234e8-b7ac-4f09-a517-508ed55e4cae"   --resource-group "test02" --template-file template.json --parameters parameters.json
+
+
 ```
 Deploy test container - nginx
 ```bash
