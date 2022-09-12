@@ -68,11 +68,11 @@ Delete grpc server app container
 ```bash
 kubectl delete deploy grpc-echo-server
 ```
-Cheatsheet for Kubectl commands
-```bash
-https://kubernetes.io/docs/reference/kubectl/cheatsheet/
-```
-List Kube Contexts
+More Kubectl syntax commands can be found at the following link.
+
+[Kubectl Command Cheatsheet](https://kubernetes.io/docs/reference/kubectl/cheatsheet/)
+
+List All Kube Contexts
 ```
 kubectl config get-contexts
 ```

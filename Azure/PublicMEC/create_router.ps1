@@ -33,10 +33,21 @@ function Create-Edge-Router([string]$token, [string]$network_id, [string]$router
 
     $body = "{`n    `"name`":`"$router_name`",`n    `"networkId`":`"$network_id`",`n    `"dataCenterId`":null,`n    `"linkListener`":false,`n    `"attributes`":[`"#$router_attribute`"],`n    `"tunnelerEnabled`": true,`n    `"noTraversal`": true`n}"
 
-    $response = Invoke-RestMethod 'https://gateway.production.netfoundry.io/core/v2//edge-routers' -Method 'POST' -Headers $headers -Body $body
+    $response = Invoke-RestMethod 'https://gateway.production.netfoundry.io/core/v2/edge-routers' -Method 'POST' -Headers $headers -Body $body
     $response | ConvertTo-Json
 
-    Write-Output $response
+    return $response
+}
+
+# Create edge router on a given network
+function Check-Edge-Router([string]$token, [string]$network_id, [string]$router_id) {
+    $headers = New-Object "System.Collections.Generic.Dictionary[[String],[String]]"
+    $headers.Add("Content-Type", "application/json")
+    $headers.Add("Authorization", "Bearer $token")
+
+    $response = Invoke-RestMethod "https://gateway.production.netfoundry.io/core/v2/edge-routers/$router_id" -Method 'GET' -Headers $headers
+    $response | ConvertTo-Json
+
     return $response
 }
 
@@ -65,7 +76,11 @@ $network = $networks._embedded.networkList | Where-Object  {$_.name -Eq 'private
 # create edge router on a given network
 $router = Create-Edge-Router -token $data.access_token -network_id $network.id -router_name $router_name -router_attribute $router_attribute
 # Get a registration key from the newly created router
-Start-Sleep -Seconds 10
+while($router_check.status -ne "provisioned") {
+    Start-Sleep -Seconds 10
+    $router_check = Check-Edge-Router -token $data.access_token -network_id $network.id -router_id $router.id
+    Write-Output $router_check.status
+}
 $reg_key = Get-Router-Reg-Key -token $data.access_token -router_id $router.id
 # Output the registration key
 $key = $reg_key.registrationKey
