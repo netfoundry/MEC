@@ -5,9 +5,6 @@
         "dnsPrefix": {
             "value": "dkube"
         },
-        "location": {
-            "value": "westus"
-        },
         "kubernetesVersion": {
             "value": "1.22.6"
         },
@@ -19,9 +16,6 @@
         },
         "dnsServiceIP": {
             "value": "10.16.0.10"
-        },
-        "acrResourceGroup": {
-            "value": "test02"
         },
         "appCidr": {
             "value": "10.16.1.0/24"
