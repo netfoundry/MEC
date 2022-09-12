@@ -482,7 +482,7 @@
                                         "publisher": "netfoundryinc",
                                         "offer": "ziti-edge-router",
                                         "sku": "ziti-edge-router",
-                                        "version": "1.9.20220429"
+                                        "version": "latest"
                                     }
                                 },
                                 "networkProfile": {
