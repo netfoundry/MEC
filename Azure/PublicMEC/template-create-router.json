@@ -24,9 +24,9 @@
         "kind": "AzurePowerShell",
         "properties": {
           "azPowerShellVersion": "6.4",
-          "timeout": "PT30M",
+          "timeout": "PT1H",
           "cleanupPreference": "OnSuccess",
-          "retentionInterval": "PT10M",
+          "retentionInterval": "PT1H",
           "environmentVariables": [
             {
               "name": "ROUTER_NAME",

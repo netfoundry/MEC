@@ -15,12 +15,8 @@ az aks install-cli
 * Downloads credentials and configures the Kubernetes CLI to use them.
 * Uses ~/.kube/config, the default location for the Kubernetes configuration file. Specify a different location for your Kubernetes configuration file using --file argument.
 ```bash
-az aks get-credentials --resource-group myResourceGroup --name myAKSCluster --subscription mySubscription
+az aks get-credentials --resource-group $RG_NAME --name {myAKSCluster} --subscription $SUB_ID
 ```
-
-kubectl config get-contexts
-kubectl config delete-context  {Cluster_Name_1}
-
 
 3. Verify the connection to your cluster using the kubectl get command. This command returns a list of the cluster nodes.
 ```bash
@@ -35,8 +31,9 @@ aks-nodepool1-31718369-0   Ready    agent   6m44s   v1.12.8
 
 Run the following to deploy an aks cluster with one node and NF Edge Router into the same Resource Group. After the deployment is complete, cloud admins can access the cluster through the NF Network without exposing any cluster API/Management ports to the Internet.   
 ```bash
-az deployment group create --name dariuszaks --subscription "53d234e8-b7ac-4f09-a517-508ed55e4cae"   --resource-group "test02" --template-file template.json --parameters parameters.json
+az deployment group create --name dariuszaksdeployment02 --subscription $SUB_ID   --resource-group $RG_NAME --template-file template.json --parameters parameters.json -p client_id=$CLIENT_ID -p client_secret=$CLIENT_SECRET -p router_attribute=dariusztest
 
+az deployment group create --name dariuszaksdeployment02 --subscription $SUB_ID   --resource-group $RG_NAME --template-file template-edge-zones.json --parameters parameters.json -p client_id=$CLIENT_ID -p client_secret=$CLIENT_SECRET -p router_attribute=dariusztest
 
 ```
 Deploy test container - nginx
@@ -67,6 +64,25 @@ Deploy grpc server app container
 ```bash
 kubectl apply -f grpc-echo-app-manifest.yaml
 ```
+Delete grpc server app container
+```bash
+kubectl delete deploy grpc-echo-server
+```
+Cheatsheet for Kubectl commands
+```bash
+https://kubernetes.io/docs/reference/kubectl/cheatsheet/
+```
+List Kube Contexts
+```
+kubectl config get-contexts
+```
+Switch to a given context
+```
+config use-context {Cluster_Name}
+```
+Delete Kube Context
+```
+kubectl config delete-context  {Cluster_Name}
+```
 
- kubectl delete deploy grpc-echo-server-eastus01
- https://kubernetes.io/docs/reference/kubectl/cheatsheet/
+
