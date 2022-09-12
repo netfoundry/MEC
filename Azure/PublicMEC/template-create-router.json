@@ -23,7 +23,7 @@
         "type": "Microsoft.Resources/deploymentScripts",
         "apiVersion": "2020-10-01",
         "name": "runPowerShellInlineWithOutput",
-        "location": "[parameters(location)]",
+        "location": "[parameters('location')]",
         "kind": "AzurePowerShell",
         "properties": {
           "azPowerShellVersion": "6.4",
