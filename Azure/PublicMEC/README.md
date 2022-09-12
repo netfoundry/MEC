@@ -31,11 +31,17 @@ aks-nodepool1-31718369-0   Ready    agent   6m44s   v1.12.8
 
 Run the following to deploy an aks cluster with one node and NF Edge Router into the same Resource Group. After the deployment is complete, cloud admins can access the cluster through the NF Network without exposing any cluster API/Management ports to the Internet.   
 ```bash
-az deployment group create --name dariuszaksdeployment02 --subscription $SUB_ID   --resource-group $RG_NAME --template-file template.json --parameters parameters.json -p client_id=$CLIENT_ID -p client_secret=$CLIENT_SECRET -p router_attribute=dariusztest
+az deployment group create --name daksdeploywestus --subscription $SUB_ID   --resource-group $RG_NAME --template-file template.json --parameters parameters.json -p client_id=$CLIENT_ID -p client_secret=$CLIENT_SECRET -p router_attribute=dariusztest
 
-az deployment group create --name dariuszaksdeployment02 --subscription $SUB_ID   --resource-group $RG_NAME --template-file template-edge-zones.json --parameters parameters.json -p client_id=$CLIENT_ID -p client_secret=$CLIENT_SECRET -p router_attribute=dariusztest
-
+az deployment group create --name daksdeployeastus2 --subscription $SUB_ID   --resource-group $RG_NAME --template-file template-edge-zones.json --parameters parameters.json -p client_id=$CLIENT_ID -p client_secret=$CLIENT_SECRET -p router_attribute=dariusztest
 ```
+
+Delete Deployment
+```bash
+az deployment group delete --name daksdeploywestus --subscription $SUB_ID   --resource-group $RG_NAME
+az deployment group delete --name daksdeployeastus2 --subscription $SUB_ID   --resource-group $RG_NAME
+```
+
 Deploy test container - nginx
 ```bash
 kubectl apply -f nginx-manifest.yaml
@@ -66,20 +72,23 @@ kubectl apply -f grpc-echo-app-manifest.yaml
 ```
 Delete grpc server app container
 ```bash
-kubectl delete deploy grpc-echo-server
+kubectl delete deploy grpc-echo-app
 ```
 More Kubectl syntax commands can be found at the following link.
 
 [Kubectl Command Cheatsheet](https://kubernetes.io/docs/reference/kubectl/cheatsheet/)
 
+
 List All Kube Contexts
 ```
 kubectl config get-contexts
 ```
+
 Switch to a given context
 ```
-config use-context {Cluster_Name}
+kubectl config use-context {Cluster_Name}
 ```
+
 Delete Kube Context
 ```
 kubectl config delete-context  {Cluster_Name}
