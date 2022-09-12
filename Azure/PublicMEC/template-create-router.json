@@ -22,7 +22,7 @@
       {
         "type": "Microsoft.Resources/deploymentScripts",
         "apiVersion": "2020-10-01",
-        "name": "runPowerShellInlineWithOutput",
+        "name": "[concat('ScriptRunPS', parameters('location'))]",
         "location": "[parameters('location')]",
         "kind": "AzurePowerShell",
         "properties": {
@@ -54,7 +54,7 @@
     ],
     "outputs": {
       "router_reg_command_with_regkey": {
-        "value": "[reference('Microsoft.Resources/deploymentScripts/runPowerShellInlineWithOutput').outputs.text]",
+        "value": "[reference(concat('Microsoft.Resources/deploymentScripts/ScriptRunPS', parameters('location'))).outputs.text]",
         "type": "string"
       }
     }

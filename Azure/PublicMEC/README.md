@@ -31,9 +31,9 @@ aks-nodepool1-31718369-0   Ready    agent   6m44s   v1.12.8
 
 Run the following to deploy an aks cluster with one node and NF Edge Router into the same Resource Group. After the deployment is complete, cloud admins can access the cluster through the NF Network without exposing any cluster API/Management ports to the Internet.   
 ```bash
-az deployment group create --name daksdeploywestus --subscription $SUB_ID   --resource-group $RG_NAME --template-file template.json --parameters parameters.json -p client_id=$CLIENT_ID -p client_secret=$CLIENT_SECRET -p router_attribute=dariusztest -p location=westus acrResourceGroup=$RG_NAME
+az deployment group create --name daksdeploywestus --subscription $SUB_ID --resource-group $RG_NAME --template-file template.json --parameters parameters.json -p client_id=$CLIENT_ID -p client_secret=$CLIENT_SECRET -p router_attribute=dariusztest -p location=westus acrResourceGroup=$RG_NAME
 
-az deployment group create --name daksdeployeastus2 --subscription $SUB_ID   --resource-group $RG_NAME --template-file template-edge-zones.json --parameters parameters.json -p client_id=$CLIENT_ID -p client_secret=$CLIENT_SECRET -p router_attribute=dariusztest -p location=eastus2 -p acrResourceGroup=$RG_NAME
+az deployment group create --name daksdeployeastus2 --subscription $SUB_ID --resource-group $RG_NAME --template-file template-edge-zones.json --parameters parameters.json -p client_id=$CLIENT_ID -p client_secret=$CLIENT_SECRET -p router_attribute=dariusztest -p location=eastus2 -p acrResourceGroup=$RG_NAME
 ```
 
 Delete Deployment
