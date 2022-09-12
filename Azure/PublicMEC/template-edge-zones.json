@@ -470,7 +470,8 @@
             "resourceGroup": "[parameters('acrResourceGroup')]",
             "dependsOn": [
                 "[resourceId('Microsoft.Resources/deployments', concat('LinkedTemplateCreateRouter', parameters('location')))]",
-                "[resourceId('Microsoft.Resources/deployments', concat('AKSClusterDeployment', parameters('acrResourceGroup')))]"
+                "[resourceId('Microsoft.Resources/deployments', concat('AKSClusterDeployment', parameters('acrResourceGroup')))]",
+                "[concat('Microsoft.Network/networkInterfaces/', variables('networkInterfaceEr1'))]"
             ],
             "properties": {
                 "mode": "Incremental",
