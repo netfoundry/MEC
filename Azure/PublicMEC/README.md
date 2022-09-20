@@ -205,7 +205,7 @@ To manage a Kubernetes cluster, use the Kubernetes command-line client, kubectl.
     ```
 1. Repeat all previous steps for this location
     ***
-    <u>Note:</u> Recommended way to enroll you identities is to use ziti binary. Can dowload the latest binary from [openziti releases](https://github.com/openziti/ziti/releases)
+    <u>Note:</u> Recommended way to enroll your identities is to use ziti binary. Can dowload the latest binary from [openziti releases](https://github.com/openziti/ziti/releases)
 
     EC Type Private Key
     ```bash
