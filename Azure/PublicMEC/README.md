@@ -24,12 +24,12 @@ You may need to install azure cli and login first if not already done so.
 ***
 
 ## Any Azure Region
-```bash
+```powershell
 az deployment group create --name daksdeploy$LOCATION --subscription $SUB_ID --resource-group $RG_NAME --template-file template.json --parameters parameters.json -p client_id=$CLIENT_ID -p client_secret=$CLIENT_SECRET -p router_attribute=<your router attribute> -p location=$LOCATION acrResourceGroup=$RG_NAME
 ```
 
 ## Public MEC Azure Region
-```bash
+```powershell
 az deployment group create --name daksdeploy$LOCATION --subscription $SUB_ID --resource-group $RG_NAME --template-file template-edge-zones.json --parameters parameters.json -p client_id=$CLIENT_ID -p client_secret=$CLIENT_SECRET -p router_attribute=<your router attribute> -p location=$LOCATION -p acrResourceGroup=$RG_NAME
 ```
 >## Configure Ziti Service
@@ -93,12 +93,12 @@ az deployment group create --name daksdeploy$LOCATION --subscription $SUB_ID --r
 
 ## openziti cli ###
 1. Need to create configs files from the json configs shown above under the NF Console Section (i.e. intercept.v1 and host.v1 types) first.
-    ```bash
+    ```powershell
     ziti edge create config <your intercept config name> intercept.v1 --json-file intercept_v1.json
     ziti edge create config <your host config name> host.v1 --json-file host_v1.json 
     ```
 1. And then attach them them to a service as shown.
-    ```bash
+    ```powershell
     ziti edge create service <your service name> --configs <your intercept config name>,<your host config name> --role-attributes <your service attribute name>
     ```
 1. Finally, this service needs to be assigned to endpoints that will be hosting it. 
@@ -124,7 +124,7 @@ To manage a Kubernetes cluster, use the Kubernetes command-line client, kubectl.
 
     **Azure CLI**
 
-    ```bash
+    ```powershell
     az aks install-cli
     ```
 
@@ -132,12 +132,12 @@ To manage a Kubernetes cluster, use the Kubernetes command-line client, kubectl.
 
     * Downloads credentials and configures the Kubernetes CLI to use them.
     * Uses ~/.kube/config, the default location for the Kubernetes configuration file. Specify a different location for your Kubernetes configuration file using --file argument.
-    ```bash
+    ```powershell
     az aks get-credentials --resource-group $RG_NAME --name {myAKSCluster} --subscription $SUB_ID
     ```
 
 1. Verify the connection to your cluster using the kubectl get command. This command returns a list of the cluster nodes.
-    ```bash
+    ```powershell
     kubectl get nodes
 
     NAME                       STATUS   ROLES   AGE     VERSION
@@ -145,7 +145,7 @@ To manage a Kubernetes cluster, use the Kubernetes command-line client, kubectl.
     ```
 
 1. Deploy test container - nginx
-    ```bash
+    ```powershell
     kubectl apply -f nginx-manifest.yaml
     deployment.apps/nginx created
 
@@ -162,20 +162,20 @@ To manage a Kubernetes cluster, use the Kubernetes command-line client, kubectl.
 ***
 ***Using Ziti-edge-tunnel App***
 1. Deploy identity for NF Tunnel App
-    ```bash
+    ```powershell
     kubectl create secret generic ziti-enrolled-identity --from-file=ziti-enrolled-identity=./myZitiIdentityFile.json
     ```
 1. Deploy zet container
-    ```bash
+    ```powershell
     kubectl apply -f zet-manifest.yaml
     ```
 1. Check logs for zet
-    ```bash
+    ```powershell
     kubectl logs -f zet-aks-eastus01{+assigned id} -c ziti-edge-tunnel
     ```
-1. Log into to zet bash
-    ```bash
-    kubectl exec -it zet-aks-eastus01{+assigned id} -- /bin/bash
+1. Log into to zet powershell
+    ```powershell
+    kubectl exec -it zet-aks-eastus01{+assigned id} -- /bin/powershell
     ```
 1. Create ssh service hoated by this identity to reach edge router using the private IP address and add it to the same appwan using NF Console or service policy using openziti cli
     ```
@@ -188,11 +188,11 @@ To manage a Kubernetes cluster, use the Kubernetes command-line client, kubectl.
     kubectl config get-contexts
     ```
 1. Create and Deploy identity for GRPC Server App in that location.
-    ```bash
+    ```powershell
     kubectl create secret generic grpc-echo-server-identity --from-file=grpc-echo-server-identity=./grpcServerdentityFile.json
     ```
 1. Deploy grpc server app container
-    ```bash
+    ```powershell
     kubectl apply -f grpc-echo-app-manifest.yaml
     ```
 1. List All Kube Contexts
@@ -208,11 +208,11 @@ To manage a Kubernetes cluster, use the Kubernetes command-line client, kubectl.
     <u>Note:</u> Recommended way to enroll your identities is to use ziti binary. Can dowload the latest binary from [openziti releases](https://github.com/openziti/ziti/releases)
 
     EC Type Private Key
-    ```bash
+    ```powershell
     ziti edge enroll -a EC -j <your identity name>.jwt -o <your identity name>.json --rm 
     ```
     RSA Type Private Key
-    ```bash
+    ```powershell
     ziti edge enroll -a RSA -j <client identity name>.jwt -o <client identity name>.json --rm 
     ```
     ***
@@ -224,7 +224,7 @@ To manage a Kubernetes cluster, use the Kubernetes command-line client, kubectl.
     ```
 1. Creater 2 services named grpcService and grpcServiceAddr with no configuration.
 1. Run this to test grpcServiceAddr to the first region
-    ```bash
+    ```powershell
     grpc-echo client --service grpcServiceAddr --config  <client identity name>.json --clientEchoString check123 --sIdentity <identity name from server region1>.json
     ```
     Example
@@ -237,7 +237,7 @@ To manage a Kubernetes cluster, use the Kubernetes command-line client, kubectl.
     ```
     
 1. Run this to test grpcServiceAddr to the second region
-    ```bash
+    ```powershell
     grpc-echo client --service grpcServiceAddr --config  <client identity name>.json --clientEchoString check112233 --sIdentity <identity name from server region2>.json
     ```
 
@@ -252,7 +252,7 @@ To manage a Kubernetes cluster, use the Kubernetes command-line client, kubectl.
     ```
 
 1. Once completed the testing, delete grpc server app container in all locations
-    ```bash
+    ```powershell
     kubectl delete deploy grpc-echo-app
     ```
 
@@ -261,6 +261,6 @@ To manage a Kubernetes cluster, use the Kubernetes command-line client, kubectl.
 [Kubectl Command Cheatsheet](https://kubernetes.io/docs/reference/kubectl/cheatsheet/)
 
 View Pod Logs
-```bash
+```powershell
 kubectl logs -f {pod name}
 ```
