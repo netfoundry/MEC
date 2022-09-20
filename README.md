@@ -1,2 +1,4 @@
 # MEC
-multi-access edge compute 
+Multi-access Edge Compute is being deployed/built by various public cloud provider at the edge of the Private and/or Public 5G Mobile Networks. This enables new business possibilities and opportunities, where application latency is greatly reduced, bandwidth is increased, and data collected is processed locally.  
+
+This repo contains the details of NetFoundry Collaboration with the public cloud providers with regards to the secure and private connectivity between end users/IoT devices and applications that are deployed in these various edge locations and/or the main cloud regions across the 5G Network and the Internet
