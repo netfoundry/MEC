@@ -205,15 +205,15 @@ To manage a Kubernetes cluster, use the Kubernetes command-line client, kubectl.
     ```
 1. Repeat all previous steps for this location
     ***
-    <u>Note:</u> Recommended way to enroll you identities is to use ziti binary.
+    <u>Note:</u> Recommended way to enroll you identities is to use ziti binary. Can dowload the latest binary from [openziti releases](https://github.com/openziti/ziti/releases)
 
     EC Type Private Key
     ```bash
-    edge enroll -a EC -j <your identity name>.jwt -o <your identity name>.json --rm 
+    ziti edge enroll -a EC -j <your identity name>.jwt -o <your identity name>.json --rm 
     ```
     RSA Type Private Key
     ```bash
-    edge enroll -a RSA -j <client identity name>.jwt -o <client identity name>.json --rm 
+    ziti edge enroll -a RSA -j <client identity name>.jwt -o <client identity name>.json --rm 
     ```
     ***
 1. Install grcp client app on your laptop and create the identity for it.
@@ -224,13 +224,33 @@ To manage a Kubernetes cluster, use the Kubernetes command-line client, kubectl.
     ```
 1. Creater 2 services named grpcService and grpcServiceAddr with no configuration.
 1. Run this to test grpcServiceAddr to the first region
-    ```
+    ```bash
     grpc-echo client --service grpcServiceAddr --config  <client identity name>.json --clientEchoString check123 --sIdentity <identity name from server region1>.json
     ```
-1. Run this to test grpcServiceAddr to the second region
+    Example
+    ```powershell
+    PS grpc-echo>.\grpc-echo.exe client --service grpcServiceAddr --config  $HOME\NetFoundry\grpc_client_wde.json --clientEchoString check123 --sIdentity grpc_server_atlanta
+
+    2022/09/19 21:32:28 Message: grpcServiceAddr grpc_server_atlanta check123
+
+    PS grpc-echo>
     ```
+    
+1. Run this to test grpcServiceAddr to the second region
+    ```bash
     grpc-echo client --service grpcServiceAddr --config  <client identity name>.json --clientEchoString check112233 --sIdentity <identity name from server region2>.json
     ```
+
+    Example
+    ```powershell
+    PS grpc-echo>.\grpc-echo.exe client --service grpcServiceAddr --config  $HOME\NetFoundry\grpc_client_wde.json 
+    --clientEchoString check112233 --sIdentity grpc_server_westus
+
+    2022/09/19 21:32:49 Message: grpcServiceAddr grpc_server_westus check112233
+
+    PS grpc-echo>
+    ```
+
 1. Once completed the testing, delete grpc server app container in all locations
     ```bash
     kubectl delete deploy grpc-echo-app
