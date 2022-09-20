@@ -1,0 +1,61 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "location": {
+          "type": "string"
+        },
+        "router_name": {
+            "type": "string"
+        },
+        "router_attribute": {
+            "type": "string"
+        },
+        "client_id": {
+            "type": "string"
+        },
+        "client_secret": {
+            "type": "securestring"
+        }
+    },
+    "resources": [
+      {
+        "type": "Microsoft.Resources/deploymentScripts",
+        "apiVersion": "2020-10-01",
+        "name": "[concat('ScriptRunPS', parameters('location'))]",
+        "location": "[parameters('location')]",
+        "kind": "AzurePowerShell",
+        "properties": {
+          "azPowerShellVersion": "6.4",
+          "timeout": "PT1H",
+          "cleanupPreference": "OnSuccess",
+          "retentionInterval": "PT1H",
+          "environmentVariables": [
+            {
+              "name": "ROUTER_NAME",
+              "value": "[parameters('router_name')]"
+            },
+            {
+              "name": "ROUTER_ATTRIBUTE",
+              "value": "[parameters('router_attribute')]"
+            },
+            {
+                "name": "CLIENT_ID",
+                "value": "[parameters('client_id')]"
+              },
+              {
+                "name": "CLIENT_SECRET",
+                "value": "[parameters('client_secret')]"
+              }
+          ],
+          "primaryScriptUri": "https://raw.githubusercontent.com/netfoundry/MEC/public_mec/Azure/PublicMEC/create_router.ps1"
+        }
+      }
+    ],
+    "outputs": {
+      "router_reg_command_with_regkey": {
+        "value": "[reference(concat('Microsoft.Resources/deploymentScripts/ScriptRunPS', parameters('location'))).outputs.text]",
+        "type": "string"
+      }
+    }
+  }

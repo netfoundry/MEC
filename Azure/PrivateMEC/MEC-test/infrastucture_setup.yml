@@ -1,0 +1,792 @@
+---
+#################
+# Initial Setup #
+#################
+- hosts: localhost
+  gather_facts: no
+  connection: local
+  collections:
+    - netfoundry.platform
+    - community.general
+    - azure.azcollection
+ 
+  vars:
+    hosted_edge_routers:
+    - name: AZUREFR01
+      datacenter: centralus
+      provider: AZURE
+    customer_edge_routers:
+    - name: AZUREER01
+      tunnelerEnabled: True
+      rotateKey: True
+    - name: AZUREER02
+      tunnelerEnabled: True
+      rotateKey: True
+    mec_edge_routers:
+    - name: MECER01
+      tunnelerEnabled: True
+      rotateKey: True
+    - name: MECER02
+      tunnelerEnabled: True
+      rotateKey: True
+    azure:
+      rg_name: mec_test_rg
+    snic: []
+    mnic: []
+    mec_er_public_ip: 64.86.230.66
+    azure_er_details: []
+    mec_er_details: 
+      - name: MECER01
+        mgmt_ip: 192.168.101.10
+        lan_ip: 192.168.100.110
+      - name: MECER02
+        mgmt_ip: 192.168.101.11
+        lan_ip: 192.168.100.111
+
+#######################
+# Common Tasks        #
+#######################
+  tasks:
+  - name: Look up Public SSH Key
+    set_fact:
+      public_ssh_key: "{{ lookup('file', '~/.ssh/id_rsa.pub') }}"
+    tags:
+    - create
+
+  - name: Print Public SSH Key
+    debug:
+      var: public_ssh_key
+    tags:
+    - create
+
+#######################
+# Create NF Resources #
+#######################
+  - name: Establish session
+    netfoundry_info:
+      credentials: credentials.json
+    register: netfoundry_organization
+    tags:
+    - netfoundry
+    - create
+    - delete
+
+  - name: Create network
+    netfoundry_network:
+      name: mec-test-net
+      size: small
+      datacenter: us-east-2
+      state: PROVISIONED
+      wait: 2400
+      network_group: "{{ netfoundry_organization.network_group }}"
+    tags: 
+    - netfoundry
+    - create
+  
+  - name: Collect the Network Info
+    netfoundry_info:
+      network: mec-test-net
+      inventory: True
+      session: "{{ netfoundry_organization.session }}"
+    register: netfoundry_network
+    tags: 
+    - netfoundry
+    - create
+
+  - name: Provision public edge router
+    netfoundry_router:
+      name: "{{ item.name }}"
+      attributes: 
+      - "#public-routers"
+      datacenter: "{{ item.datacenter  }}"
+      provider: "{{ item.provider }}"
+      state: REGISTERED
+      wait: 1200
+      network: "{{ netfoundry_network.network }}"
+    loop: "{{ hosted_edge_routers }}"
+    tags: 
+    - netfoundry
+    - create
+
+  - name: Provision each Azure hosted edge router
+    netfoundry_router:
+      name: "{{ item.name }}"
+      attributes: 
+      - "#azure"
+      tunnelerEnabled: True
+      rotateKey: True
+      network: "{{ netfoundry_network.network }}"
+    register: azure_er_response
+    loop: "{{ customer_edge_routers }}"
+    tags: 
+    - netfoundry
+    - create
+    - skip
+
+  - name: Provision each MEC hosted edge router
+    netfoundry_router:
+      name: "{{ item.name }}"
+      attributes: 
+      - "#mec"
+      tunnelerEnabled: True
+      rotateKey: True
+      network: "{{ netfoundry_network.network }}"
+    register: mec_er_response
+    loop: "{{ mec_edge_routers }}"
+    tags: 
+    - netfoundry
+    - create
+
+  - name: Collect Router Info
+    netfoundry_info:
+      network: mec-test-net
+      inventory: True
+      session: "{{ netfoundry_organization.session }}"
+    register: netfoundry_network
+    tags: 
+    - netfoundry
+    - create
+
+  - name: Set Azure ER Details
+    set_fact: 
+      azure_er_details: "{{ azure_er_details|default([]) + [{'name': item.message.name, 'key': item.message.registrationKey}] }}"
+    loop: "{{ azure_er_response.results }}"
+    tags:
+    - netfoundry
+    - create
+    - skip
+
+  - name: Print azure er details
+    debug: 
+      var: azure_er_details
+    tags:
+    - netfoundry
+    - create
+    - skip
+
+  - name: Set MEC ER Details
+    set_fact: 
+      mec_er_details_temp: "{{ mec_er_details_temp|default([]) + [mec_er_details | selectattr('name', 'search', item.message.name) | list | first | combine({'key': item.message.registrationKey})] }}"
+    loop: "{{ mec_er_response.results }}"
+    tags:
+    - netfoundry
+    - create
+  
+  - name: Update MEC ER Dict
+    set_fact:
+      mec_er_details: "{{ mec_er_details_temp }}"
+    tags:
+      - netfoundry
+      - create
+
+  - name: Print mec er details
+    debug: 
+      var: mec_er_details
+    tags:
+    - netfoundry
+    - create
+
+  - name: Netcat udp service
+    netfoundry_service_simple:
+      name: netcat5050
+      endpoints: 
+      - "@{{ mec_edge_routers[0].name }}"
+      attributes: 
+      - "#mec"
+      clientHostName: 192.168.100.111
+      clientPortRange: 5050
+      serverHostName: 192.168.100.111
+      serverPortRange: 5050
+      serverProtocol: UDP
+      network: "{{ netfoundry_network.network }}"
+    tags:
+    - netfoundry
+    - create
+
+  - name: Netcat tcp service
+    netfoundry_service_simple:
+      name: netcat8080
+      endpoints: 
+      - "@{{ customer_edge_routers[0].name }}"
+      attributes: 
+      - "#azure"
+      clientHostName: 10.1.1.5
+      clientPortRange: 8080
+      serverHostName: 10.1.1.5
+      serverPortRange: 8080
+      serverProtocol: TCP
+      network: "{{ netfoundry_network.network }}"  
+    tags:
+    - netfoundry
+    - create
+
+  - name: Create MEC AppWAN
+    netfoundry_appwan:
+      name: MEC-Appwan
+      endpoints:
+      - "@{{ customer_edge_routers[0].name }}"
+      services:
+      - "#mec"
+      network: "{{ netfoundry_network.network }}"
+    tags:
+    - netfoundry
+    - create
+
+  - name: Create Azure AppWAN
+    netfoundry_appwan:
+      name: Azure-Appwan
+      endpoints:
+      - "@{{ mec_edge_routers[0].name }}"
+      services:
+      - "#azure"
+      network: "{{ netfoundry_network.network }}"
+    tags:
+    - netfoundry
+    - create
+
+  - name: Delete network
+    netfoundry_network:
+      name: mec-test-net
+      state: DELETED
+      wait: 600
+      network_group: "{{ netfoundry_organization.network_group }}"
+    tags:
+    - netfoundry
+    - delete
+  
+###################
+# Create Azure ER #
+###################
+  - name: Create resource group
+    azure_rm_resourcegroup:
+      name: "{{ azure.rg_name }}"
+      location: eastus
+      state: present
+    tags:
+    - azure
+    - create
+
+  - name: Create virtual network
+    azure_rm_virtualnetwork:
+      name: dariuszTestvnet
+      resource_group: "{{ azure.rg_name }}"
+      address_prefixes_cidr:
+        - "10.1.0.0/16"
+      state: present
+    tags:
+    - azure
+    - create
+
+  - name: Create Routing table
+    azure_rm_routetable:
+      resource_group: "{{ azure.rg_name }}"
+      name: Dariusz-RouteTable
+      disable_bgp_route_propagation: False
+    tags:
+      - azure
+      - create
+
+  - name: Create a route to MEC Subnet
+    azure_rm_route:
+      resource_group: "{{ azure.rg_name }}"
+      name: "Dariusz-MecRoute"
+      address_prefix: 192.168.100.0/24
+      next_hop_ip_address: 10.1.1.4
+      next_hop_type: virtual_appliance
+      route_table_name: Dariusz-RouteTable
+    tags:
+      - azure
+      - create
+
+  - name: Create subnet
+    azure_rm_subnet:
+      name: dariuszTestSubnet
+      resource_group: "{{ azure.rg_name }}"
+      virtual_network_name: dariuszTestvnet
+      address_prefix_cidr: "10.1.1.0/24"
+      route_table: Dariusz-RouteTable
+      state: present
+    tags:
+    - azure
+    - create
+  
+  - name: Create Security Groups
+    azure_rm_securitygroup:
+      name: dariuszSecurityGroup
+      resource_group: "{{ azure.rg_name }}"
+      rules:
+        - name: SSH
+          protocol: Tcp
+          destination_port_range: 22
+          access: Allow
+          priority: 105
+          direction: Inbound
+        - name: 'AllowMultiplePorts'
+          protocol: "*"
+          source_address_prefix:
+            - '10.1.1.0/24'
+            - '192.168.100.0/24'
+          destination_port_range: "*"
+          access: Allow
+          priority: 102
+      state: present
+    tags:
+    - azure
+    - create
+
+  - name: Create Azure Network Interface with IP forwarding
+    azure_rm_networkinterface:
+      name: "{{ item.name }}.interface"
+      resource_group: "{{ azure.rg_name }}"
+      virtual_network: dariuszTestvnet
+      subnet_name: dariuszTestSubnet
+      security_group:  dariuszSecurityGroup
+      ip_forwarding: True
+      ip_configurations:
+      - name: ipconfig1
+        public_ip_address_name: "{{ item.name }}.public_ip_name"
+        primary: True
+      state: present
+    register: azure_network_interfaces
+    loop: "{{ azure_er_details }}"
+    tags:
+    - azure
+    - create
+
+  - name: Print Azure Network Interfaces
+    debug:
+      var: azure_network_interfaces
+    tags:
+    - azure
+    - create
+
+  - name: Create Azure ER
+    azure_rm_virtualmachine:
+      resource_group: "{{ azure.rg_name }}"
+      name: "{{ item.name }}"
+      vm_size: Standard_B2ms
+      os_disk_name: "{{ item.name }}"
+      managed_disk_type: Premium_LRS
+      network_interface_names: ["{{ item.name }}.interface"]
+      custom_data: "#cloud-config\nruncmd:\n - [/opt/netfoundry/router-registration, {{ item.key }}]"
+      admin_username: ziggy
+      ssh_password_enabled: false
+      ssh_public_keys:
+        - path: /home/ziggy/.ssh/authorized_keys
+          key_data: "{{ public_ssh_key }}"
+      image:
+        publisher: netfoundryinc
+        offer: ziti-edge-router
+        sku: ziti-edge-router
+        version: latest
+      plan:
+        name: ziti-edge-router
+        product: ziti-edge-router
+        publisher: netfoundryinc
+      accept_terms: yes
+      state: present
+      zones:
+    register: customer_edge_routers_results
+    loop: "{{ azure_er_details }}"
+    tags:
+    - azure
+    - create
+
+  - name: Add Azure ER Public IP to Temp Azure ER Dict
+    set_fact: 
+      azure_er_details_temp:  "{{ azure_er_details_temp|default([]) + [azure_er_details | selectattr('name', 'search', item.ansible_facts.azure_vm.name) | list | first | combine({'public_ip': item.ansible_facts.azure_vm.properties.networkProfile.networkInterfaces[0].properties.ipConfigurations[0].properties.publicIPAddress.properties.ipAddress})] }}"
+    loop: "{{ customer_edge_routers_results.results }}"
+    tags:
+    - azure
+    - create
+
+  - name: Update Azure ER Dict
+    set_fact:
+      azure_er_details: "{{ azure_er_details_temp }}"
+    tags:
+      - azure
+      - create
+
+  - name: Print Azure ER details
+    debug: 
+      var: azure_er_details
+    tags:
+    - azure
+    - create
+
+  - name: Create hosts.ini file
+    copy:
+      content: "[azure-routers]\n[mec-routers]\n64.86.230.66 ansible_port=2222"
+      dest: "hosts.ini"
+    tags:
+      - azure
+      - create
+
+  - name: Copy Azure ER Public IP to the hosts.ini file
+    ini_file:
+      path: hosts.ini
+      section: azure-routers
+      option: "{{ azure_er_details[1].public_ip }}"
+      allow_no_value: True
+    tags:
+      - azure
+      - create
+
+  - name: Delete resource group
+    azure_rm_resourcegroup:
+      name: "{{ azure.rg_name }}"
+      location: eastus
+      state: absent
+      force_delete_nonempty: yes
+    tags:
+    - azure
+    - delete
+  
+#################
+# Create MEC ER #
+#################
+  - name: Azure Authorization to get an API Session Token 
+    uri:
+      url: https://login.microsoftonline.com/{{ lookup('env','AZURE_TENANT') }}/oauth2/token
+      method: POST
+      body: resource=https%3A%2F%2Fmanagement.core.windows.net%2F&client_id={{ lookup('env','AZURE_CLIENT_ID') }}&grant_type=client_credentials&client_secret={{ lookup('env','AZURE_SECRET') }}
+      return_content: yes
+      headers:
+        Content-Type: application/x-www-form-urlencoded
+    register: auth_response
+    tags:
+    - azure-mec
+    - create
+    - delete
+
+  - name: Dump authorisation output
+    debug:
+      msg: "{{ auth_response.json.access_token }}"
+    tags:
+    - azure-mec
+    - create
+    - delete
+  
+  - name: Set Environment values
+    set_fact:
+      subscription_id: "{{ lookup('env','AZURE_SUBSCRIPTION_ID') }}"
+    tags:
+    - azure-mec
+    - create
+  
+  - name: Set Multi NIC Parameters
+    set_fact:
+      mnic01: "{
+                'properties': {
+                  'managedResourceGroupId': '/subscriptions/{{ subscription_id }}/resourceGroups/mrg-application-connection-gateway-app-{{ item.name }}',
+                  'parameters': {
+                      'location': {
+                          'value': 'eastus'
+                      },
+                      'nfName': {
+                          'value': '{{ item.name }}'
+                      },
+                      'deviceId': {
+                          'value': '/subscriptions/{{ subscription_id }}/resourceGroups/NetworkManagerGroup/providers/Microsoft.HybridNetwork/devices/WallNetworkDeviceManager'
+                      },
+                      'edgeRouterKey': {
+                          'value': '{{ item.key }}'
+                      },
+                      'publicSshKey': {
+                          'value': '{{ public_ssh_key }}'
+                      },
+                      'mecmgmtNic': {
+                          'value': {
+                              'ipAddress': '{{ item.mgmt_ip }}',
+                              'subnet': '192.168.101.0/24',
+                              'gateway': '192.168.101.1',
+                              'dnsServer1': '',
+                              'dnsServer2': ''
+                          }
+                      },
+                      'meclanNic': {
+                          'value': {
+                              'ipAddress': '{{ item.lan_ip }}',
+                              'subnet': '192.168.100.0/24',
+                              'gateway': '192.168.100.1',
+                              'dnsServer1': '',
+                              'dnsServer2': ''
+                          }
+                      }
+                  },
+                  'jitAccessPolicy': null
+                },
+                'location': 'eastus',
+                'kind': 'MarketPlace',
+                'plan': {
+                    'name': 'app-edge-router-multinic',
+                    'product': 'application-ziti-private-edge-preview',
+                    'publisher': 'netfoundryinc',
+                    'version': '1.2.0'
+                },
+                'identity': {
+                    'type': 'UserAssigned',
+                    'userAssignedIdentities': {
+                        '/subscriptions/{{ subscription_id }}/resourcegroups/test01/providers/Microsoft.ManagedIdentity/userAssignedIdentities/WallMecIdentity01': {}
+                    }
+                }
+              }"
+    loop: "{{ mec_er_details }}"
+    when: "{{ item.name ==  mec_edge_routers[0].name }} "
+    tags:
+    - azure-mec
+    - create
+  
+  - name: Set Multi NIC Parameters
+    set_fact:
+      mnic02: "{
+                'properties': {
+                  'managedResourceGroupId': '/subscriptions/{{ subscription_id }}/resourceGroups/mrg-application-connection-gateway-app-{{ item.name }}',
+                  'parameters': {
+                      'location': {
+                          'value': 'eastus'
+                      },
+                      'nfName': {
+                          'value': '{{ item.name }}'
+                      },
+                      'deviceId': {
+                          'value': '/subscriptions/{{ subscription_id }}/resourceGroups/NetworkManagerGroup/providers/Microsoft.HybridNetwork/devices/WallNetworkDeviceManager'
+                      },
+                      'edgeRouterKey': {
+                          'value': '{{ item.key }}'
+                      },
+                      'publicSshKey': {
+                          'value': '{{ public_ssh_key }}'
+                      },
+                      'mecmgmtNic': {
+                          'value': {
+                              'ipAddress': '{{ item.mgmt_ip }}',
+                              'subnet': '192.168.101.0/24',
+                              'gateway': '192.168.101.1',
+                              'dnsServer1': '',
+                              'dnsServer2': ''
+                          }
+                      },
+                      'meclanNic': {
+                          'value': {
+                              'ipAddress': '{{ item.lan_ip }}',
+                              'subnet': '192.168.100.0/24',
+                              'gateway': '192.168.100.1',
+                              'dnsServer1': '',
+                              'dnsServer2': ''
+                          }
+                      }
+                  },
+                  'jitAccessPolicy': null
+                },
+                'location': 'eastus',
+                'kind': 'MarketPlace',
+                'plan': {
+                    'name': 'app-edge-router-multinic',
+                    'product': 'application-ziti-private-edge-preview',
+                    'publisher': 'netfoundryinc',
+                    'version': '1.2.0'
+                },
+                'identity': {
+                    'type': 'UserAssigned',
+                    'userAssignedIdentities': {
+                        '/subscriptions/{{ subscription_id }}/resourcegroups/test01/providers/Microsoft.ManagedIdentity/userAssignedIdentities/WallMecIdentity01': {}
+                    }
+                }
+              }"
+    loop: "{{ mec_er_details }}"
+    when: "{{ item.name ==  mec_edge_routers[1].name }} "
+    tags:
+    - azure-mec
+    - create
+
+  - name: Debug
+    debug:
+      var: "{{ item }}"
+    loop:
+    - mnic01
+    - mnic02
+    tags:
+    - azure-mec
+    - create
+
+  - name: Check if MEC ER1 is present
+    uri:
+      url: "https://management.azure.com/subscriptions/{{ lookup('env','AZURE_SUBSCRIPTION_ID') }}/resourceGroups/test01/providers/Microsoft.Solutions/applications/{{ mnic01.properties.parameters.nfName.value }}?api-version=2019-07-01"
+      method: GET
+      force_basic_auth: yes
+      headers:
+        Content-Type: "application/json"
+        Authorization: "Bearer {{ auth_response.json.access_token }}"
+      status_code: 200,404
+      timeout: 10
+    register: request_mec
+    tags:
+    - azure-mec
+    - create
+
+  - name: debug
+    debug:
+      var: request_mec
+    tags:
+    - azure-mec
+    - create
+
+  - name: Create MEC ER01
+    uri:
+      url: "https://management.azure.com/subscriptions/{{ lookup('env','AZURE_SUBSCRIPTION_ID') }}/resourceGroups/test01/providers/Microsoft.Solutions/applications/{{ mnic01.properties.parameters.nfName.value }}?api-version=2019-07-01"
+      method: PUT
+      force_basic_auth: yes
+      headers:
+        Content-Type: "application/json"
+        Authorization: "Bearer {{ auth_response.json.access_token }}"
+      body: "{{ mnic01 }}"
+      body_format: json
+      status_code: 201
+      timeout: 120
+    register: mec_response
+    when:
+      - request_mec.status == 404
+    tags:
+    - azure-mec
+    - create
+
+  - name: Check if MEC ER01 creation status
+    uri:
+      url: "{{ mec_response.azure_asyncoperation }}"
+      method: GET
+      force_basic_auth: yes
+      headers:
+        Content-Type: "application/json"
+        Authorization: "Bearer {{ auth_response.json.access_token }}"
+      timeout: 10
+    register: result
+    when:
+      - request_mec.status == 404
+    until: result.json.status == "Succeeded"
+    retries: 20
+    delay: 60
+    ignore_errors: yes
+    tags:
+    - azure-mec
+    - create
+    - skip
+
+  - name: debug
+    debug:
+      var: result
+    tags:
+    - azure-mec
+    - create
+
+  - name: Check if MEC ER2 is present
+    uri:
+      url: "https://management.azure.com/subscriptions/{{ lookup('env','AZURE_SUBSCRIPTION_ID') }}/resourceGroups/test01/providers/Microsoft.Solutions/applications/{{ mnic02.properties.parameters.nfName.value }}?api-version=2019-07-01"
+      method: GET
+      force_basic_auth: yes
+      headers:
+        Content-Type: "application/json"
+        Authorization: "Bearer {{ auth_response.json.access_token }}"
+      status_code: 200,404
+      timeout: 10
+    register: request_mec
+    tags:
+    - azure-mec
+    - create
+
+  - name: debug
+    debug:
+      var: request_mec
+    tags:
+    - azure-mec
+    - create
+
+  - name: Create MEC ER02
+    uri:
+      url: "https://management.azure.com/subscriptions/{{ lookup('env','AZURE_SUBSCRIPTION_ID') }}/resourceGroups/test01/providers/Microsoft.Solutions/applications/{{ mnic02.properties.parameters.nfName.value }}?api-version=2019-07-01"
+      method: PUT
+      force_basic_auth: yes
+      headers:
+        Content-Type: "application/json"
+        Authorization: "Bearer {{ auth_response.json.access_token }}"
+      body: "{{ mnic02 }}"
+      body_format: json
+      status_code: 201
+      timeout: 120
+    register: mec_response
+    when:
+      - request_mec.status == 404
+    tags:
+    - azure-mec
+    - create
+
+  - name: Check if MEC ER02 creation status
+    uri:
+      url: "{{ mec_response.azure_asyncoperation }}"
+      method: GET
+      force_basic_auth: yes
+      headers:
+        Content-Type: "application/json"
+        Authorization: "Bearer {{ auth_response.json.access_token }}"
+      timeout: 10
+    register: result
+    when:
+      - request_mec.status == 404
+    until: result.json.status == "Succeeded"
+    retries: 20
+    delay: 60
+    ignore_errors: yes
+    tags:
+    - azure-mec
+    - create
+    - skip
+
+  - name: debug
+    debug:
+      var: result
+    tags:
+    - azure-mec
+    - create
+  
+  - name: Delete MEC ER
+    uri:
+      url: "https://management.azure.com/subscriptions/{{ lookup('env','AZURE_SUBSCRIPTION_ID') }}/resourceGroups/test01/providers/Microsoft.Solutions/applications/{{ item.name }}?api-version=2019-07-01"
+      method: DELETE
+      headers:
+        Content-Type: "application/json"
+        Authorization: "Bearer {{ auth_response.json.access_token }}"
+      force_basic_auth: yes
+      status_code: 202
+      timeout: 10
+    register: mec_response
+    loop: "{{ mec_edge_routers }}"
+    tags:
+    - azure-mec
+    - delete
+
+  - name: Check if MEC ER deletion status
+    uri:
+      url: "{{ item.location }}"
+      method: GET
+      force_basic_auth: yes
+      headers:
+        Content-Type: "application/json"
+        Authorization: "Bearer {{ auth_response.json.access_token }}"
+      timeout: 10
+    register: result
+    until: result.json.status == "Succeeded" or result.json.status == "Failed"
+    retries: 30
+    delay: 45
+    loop: "{{ mec_response.results }}"
+    tags:
+    - azure-mec
+    - delete
+
+  - name: debug
+    debug:
+      var: result
+    tags:
+    - azure-mec
+    - delete
+
+

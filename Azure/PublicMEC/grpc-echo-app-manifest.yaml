@@ -1,0 +1,45 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: grpc-echo-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: grpc-echo-app
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: grpc-echo-app
+    spec:
+      containers:
+      - name: grpc-echo-server
+        image: elblag91/grpc-echo:latest
+        resources:
+          requests:
+            cpu: 250m
+            memory: 64Mi
+          limits:
+            cpu: 500m
+            memory: 256Mi
+        volumeMounts:
+        - name: secret-volume
+          mountPath: "/app"
+          readOnly: true
+        args:
+        - --config=/app/identity.json
+        - --hostedServices={"name":"grpcService","addressByIdentity":false}
+        - --hostedServices={"name":"grpcServiceAddr","addressByIdentity":true}
+        - server
+      restartPolicy: Always
+      volumes:
+      - name: secret-volume
+        secret:
+          secretName: grpc-echo-server-identity
+          items:
+          -
+            key: grpc-echo-server-identity
+            path: identity.json

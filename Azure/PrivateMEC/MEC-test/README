@@ -1,0 +1,26 @@
+##Installing Packages in Testing Environmet
+/usr/bin/python3 -m pip install --upgrade pip
+pip install netfoundry --upgrade
+pip install azure-cli==2.26.1
+pip install "ansible==4.3.0"
+ansible-galaxy collection install netfoundry.platform
+ansible-galaxy collection install azure.azcollection
+ansible-galaxy collection install azure.azcollection --force
+wget https://raw.githubusercontent.com/ansible-collections/azure/dev/requirements-azure.txt
+sudo pip install -r requirements-azure.txt
+sudo pip install azure-mgmt-datalake-nspkg==3.0.1
+
+
+##Create environment variables in Windows 
+$Env:AZURE_CLIENT_ID = ""
+$Env:AZURE_SECRET = ""
+$Env:AZURE_SUBSCRIPTION_ID = ""
+$Env:AZURE_TENANT = ""
+
+##Create environment variables in Linux
+export AZURE_CLIENT_ID=
+export AZURE_SECRET=
+export AZURE_SUBSCRIPTION_ID=
+export AZURE_TENANT=
+
+Asign "mecdevicejoin' role to the api service principle client
