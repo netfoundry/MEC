@@ -222,8 +222,8 @@ To manage a Kubernetes cluster, use the Kubernetes command-line client, kubectl.
     cd grpc-echo
     go build
     ```
-1. Creater 2 services named grpcService and grpcServiceAddr with no configuration.
-1. Run this to test grpcServiceAddr to the first region
+1. Create 2 services named grpcService and grpcServiceAddr with no configuration to test the differences between these two types of services.
+1. Run this to test grpcServiceAddr to address the first region directly
     ```powershell
     grpc-echo client --service grpcServiceAddr --config  <client identity name>.json --clientEchoString check123 --sIdentity <identity name from server region1>
     ```
@@ -236,7 +236,7 @@ To manage a Kubernetes cluster, use the Kubernetes command-line client, kubectl.
     PS grpc-echo>
     ```
     
-1. Run this to test grpcServiceAddr to the second region
+1. Run this to test grpcServiceAddr to address the second region directly
     ```powershell
     grpc-echo client --service grpcServiceAddr --config  <client identity name>.json --clientEchoString check112233 --sIdentity <identity name from server region2>
     ```
