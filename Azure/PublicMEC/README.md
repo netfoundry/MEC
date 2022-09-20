@@ -225,7 +225,7 @@ To manage a Kubernetes cluster, use the Kubernetes command-line client, kubectl.
 1. Creater 2 services named grpcService and grpcServiceAddr with no configuration.
 1. Run this to test grpcServiceAddr to the first region
     ```powershell
-    grpc-echo client --service grpcServiceAddr --config  <client identity name>.json --clientEchoString check123 --sIdentity <identity name from server region1>.json
+    grpc-echo client --service grpcServiceAddr --config  <client identity name>.json --clientEchoString check123 --sIdentity <identity name from server region1>
     ```
     Example
     ```powershell
@@ -238,7 +238,7 @@ To manage a Kubernetes cluster, use the Kubernetes command-line client, kubectl.
     
 1. Run this to test grpcServiceAddr to the second region
     ```powershell
-    grpc-echo client --service grpcServiceAddr --config  <client identity name>.json --clientEchoString check112233 --sIdentity <identity name from server region2>.json
+    grpc-echo client --service grpcServiceAddr --config  <client identity name>.json --clientEchoString check112233 --sIdentity <identity name from server region2>
     ```
 
     Example
@@ -251,7 +251,25 @@ To manage a Kubernetes cluster, use the Kubernetes command-line client, kubectl.
     PS grpc-echo>
     ```
 
-1. Once completed the testing, delete grpc server app container in all locations
+1. Run this to test grpcService to compare, when the closest location is found.
+    ```powershell
+    grpc-echo client --service grpcService --config  <client identity name>.json --clientEchoString check111222333 
+    ```
+
+    Example
+    ```powershell
+    PS grpc-echo>.\grpc-echo.exe client --service grpcService --config  $HOME\NetFoundry\grpc_client_wde.json --clientEchoString check111222333
+
+    2022/09/20 10:36:45 Message: grpcService grpc_server_atlanta check111222333
+
+
+    PS grpc-echo>.\grpc-echo.exe client --service grpcService --config  $HOME\NetFoundry\grpc_client_wde.json --clientEchoString check111222333
+
+    2022/09/20 10:36:54 Message: grpcService grpc_server_atlanta check111222333
+    PS grpc-echo>
+    ```
+
+1. Once completed the testing, delete grpc server app container in all locations.
     ```powershell
     kubectl delete deploy grpc-echo-app
     ```
