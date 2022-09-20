@@ -1,6 +1,6 @@
 # NetFoundry Service Architecture for Multi Region Private AKS Deployment in Azure.
 
-![image](./MultiRegionKubernetesClusterManagement-PublicMEC.jpg)
+![image](files/MultiRegionKubernetesClusterManagement-PublicMEC.jpg)
 
 In this example deployment, we are showing how a user, i.e. network/cloud admin, devops engineer, app developer, etc, can access each individual AKS Cluster's Control Plane through Private API Endpoint with one Ziti Service.
 
@@ -32,7 +32,7 @@ az deployment group create --name daksdeploy$LOCATION --subscription $SUB_ID --r
 ```bash
 az deployment group create --name daksdeploy$LOCATION --subscription $SUB_ID --resource-group $RG_NAME --template-file template-edge-zones.json --parameters parameters.json -p client_id=$CLIENT_ID -p client_secret=$CLIENT_SECRET -p router_attribute=<your router attribute> -p location=$LOCATION -p acrResourceGroup=$RG_NAME
 ```
->## Configure Zit Service
+>## Configure Ziti Service
 ***
 <u>***Assumptions***</u>: an edge router policy is already configured.
 ***
@@ -41,52 +41,52 @@ az deployment group create --name daksdeploy$LOCATION --subscription $SUB_ID --r
 1. Create a service using a guide at [Create and Manage Services](https://support.netfoundry.io/hc/en-us/articles/360045503311-Create-and-Manage-Services)
 1. Select Advanced Configuration Service Tile (i.e. Configs) not found in the guide
 
-    ![Image](./serviceAdvancedConfigTile.jpg)
+    ![Image](files/serviceAdvancedConfigTile.jpg)
 
 1. Paste the following code into the intercept.v1 config section with your own fqdns
     ```json
     {
-    "addresses": [
-        "dkube-b0b29d67.90a6aecb-1cb3-4c87-ab12-2905ad87ffe7.privatelink.westus.azmk8s.io",
-        "dkube-db284148.10d84ef8-be30-4cb0-9dc8-a7b1abe22430.privatelink.eastus2.azmk8s.io"
-    ],
-    "protocols": [
-        "tcp"
-    ],
-    "portRanges": [
-        {
-        "low": 443,
-        "high": 443
+        "addresses": [
+            "dkube-b0b29d67.90a6aecb-1cb3-4c87-ab12-2905ad87ffe7.privatelink.westus.azmk8s.io",
+            "dkube-db284148.10d84ef8-be30-4cb0-9dc8-a7b1abe22430.privatelink.eastus2.azmk8s.io"
+        ],
+        "protocols": [
+            "tcp"
+        ],
+        "portRanges": [
+            {
+            "low": 443,
+            "high": 443
+            }
+        ],
+        "dialOptions": {
+            "identity": "$dst_hostname"
         }
-    ],
-    "dialOptions": {
-        "identity": "$dst_hostname"
-    }
     }
 
     ```
 1. Paste the following code into the host.v1 config section with your own fqdns
     ```json
     {
-    "forwardPort": true,
-    "listenOptions": {
-        "identity": "$tunneler_id.name"
-    },
-    "forwardAddress": true,
-    "forwardProtocol": true,
-    "allowedAddresses": [
-        "dkube-b0b29d67.90a6aecb-1cb3-4c87-ab12-2905ad87ffe7.privatelink.westus.azmk8s.io",
-        "dkube-db284148.10d84ef8-be30-4cb0-9dc8-a7b1abe22430.privatelink.eastus2.azmk8s.io"
-    ],
-    "allowedProtocols": [
-        "tcp"
-    ],
-    "allowedPortRanges": [
-        {
-        "low": 443,
-        "high": 443
-        }
-    ]
+        "forwardPort": true,
+        "listenOptions": {
+            "identity": "$tunneler_id.name"
+        },
+        "forwardAddress": true,
+        "forwardProtocol": true,
+        "allowedAddresses": [
+            "dkube-b0b29d67.90a6aecb-1cb3-4c87-ab12-2905ad87ffe7.privatelink.westus.azmk8s.io",
+            "dkube-db284148.10d84ef8-be30-4cb0-9dc8-a7b1abe22430.privatelink.eastus2.azmk8s.io"
+        ],
+        "allowedProtocols": [
+            "tcp"
+        ],
+        "allowedPortRanges": [
+            {
+            "low": 443,
+            "high": 443
+            }
+        ]
     }
     ```
 1. Create AppWan and add the service along with the Edge Router's Tunnel Idenity to it. Link to the guide for creating it can be found at [Create and Manage AppWANs](https://support.netfoundry.io/hc/en-us/articles/360045545211-Create-and-Manage-AppWANs)
@@ -205,7 +205,16 @@ To manage a Kubernetes cluster, use the Kubernetes command-line client, kubectl.
     ```
 1. Repeat all previous steps for this location
     ***
-    <u>Note:</u> Next steps assumes that there is a docker install on yourt endpoint.
+    <u>Note:</u> Recommended way to enroll you identities is to use ziti binary.
+
+    EC Type Private Key
+    ```bash
+    edge enroll -a EC -j <your identity name>.jwt -o <your identity name>.json --rm 
+    ```
+    RSA Type Private Key
+    ```bash
+    edge enroll -a RSA -j <client identity name>.jwt -o <client identity name>.json --rm 
+    ```
     ***
 1. Install grcp client app on your laptop and create the identity for it.
     ```
@@ -230,3 +239,8 @@ To manage a Kubernetes cluster, use the Kubernetes command-line client, kubectl.
 >## Usefull Kubectl commands
 ***
 [Kubectl Command Cheatsheet](https://kubernetes.io/docs/reference/kubectl/cheatsheet/)
+
+View Pod Logs
+```bash
+kubectl logs -f {pod name}
+```
