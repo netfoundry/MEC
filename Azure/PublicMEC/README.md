@@ -8,7 +8,7 @@ A standard Ziti Service provides access to applications/services that can be hig
 
 That works very well for most applications/services. Applications like VoIP that need to dial a certain destination or Orchestration Platforms need to access the control plane of the deployed infrastructure in a specific region need a predictable service destination selection. In other words, these apps/service/users need an ability to reach an exact destination at any given time.  With a standard Ziti Service, one would need to configure a service per destination to always reach the same destination at any given time, not very practical or even scalable solution.
 
-This is where addressable terminators come in. When a ziti service is hosted on an egress endpoint, it automatically creates so called service terminator(s). If terminators are marked with addressable identity, they can be addressed by the name of the endpoint (aka identity) that created them. There is also an option to use a special tag called appData instead of the name. In this guide, we will use the name of the endpoint, which is the edge router's name.
+This is where addressable terminators come in. When a ziti service is hosted on an endpoint, it automatically creates so called service terminator(s). If terminators are marked with addressable identity, they can be addressed by the name of the endpoint (aka identity) that is hosting the service. There is also an option to use a special tag called appData instead of the name. In this guide, we will use the name of the endpoint, which is the edge router's name.
 
 ***
 ***Prerequisites***
