@@ -190,7 +190,7 @@
             "properties": {
               "mode": "Incremental",
               "templateLink": {
-                "uri":"https://raw.githubusercontent.com/netfoundry/MEC/public_mec/Azure/PublicMEC/template-create-router.json",
+                "uri":"https://raw.githubusercontent.com/netfoundry/MEC/master/Azure/PublicMEC/template-create-router.json",
                 "contentVersion":"1.0.0.0"
               },
               "parameters": {
