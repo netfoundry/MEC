@@ -48,7 +48,7 @@
                 "value": "[parameters('client_secret')]"
               }
           ],
-          "primaryScriptUri": "https://raw.githubusercontent.com/netfoundry/MEC/public_mec/Azure/PublicMEC/create_router.ps1"
+          "primaryScriptUri": "https://raw.githubusercontent.com/netfoundry/MEC/master/Azure/PublicMEC/create_router.ps1"
         }
       }
     ],
