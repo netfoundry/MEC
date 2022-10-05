@@ -6,7 +6,7 @@
             "value": "dkube"
         },
         "kubernetesVersion": {
-            "value": "1.22.6"
+            "value": "1.23.12"
         },
         "localAddressPrefixes": {
             "value": ["10.17.0.0/16"]
