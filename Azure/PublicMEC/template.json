@@ -177,13 +177,16 @@
         "networkInterfaceEr1": "[concat(variables('varPrefix'),'-netif')]",
         "networkSecurityGroupName1": "[concat(variables('varPrefix'),'-nsg1')]",
         "nsgId1": "[resourceId(resourceGroup().name, 'Microsoft.Network/networkSecurityGroups', variables('networkSecurityGroupName1'))]",
-        "acrName": "[concat(variables('varPrefix'),'arc')]"
+        "acrName": "[concat(variables('varPrefix'),'arc')]",
+        "acrPullRoleDefinitionName": "7f951dda-4ed3-4680-a7ca-43fe172d538d",
+        "acrPullRoleId": "[subscriptionResourceId('Microsoft.Authorization/roleDefinitions', variables('acrPullRoleDefinitionName'))]",
+        "aksClusterId": "[resourceId('Microsoft.ContainerService/managedClusters', variables('varPrefix'))]"
     },
     "resources": [
         {
             "name": "[concat('LinkedTemplateCreateRouter', parameters('location'))]",
             "type": "Microsoft.Resources/deployments",
-            "apiVersion": "2021-04-01",
+            "apiVersion": "2022-09-01",
             "dependsOn": [
                 "[concat('Microsoft.ContainerService/managedClusters/', variables('varPrefix'))]"
             ],
@@ -215,7 +218,7 @@
         {
             "name": "[concat('AKSClusterDeployment', parameters('acrResourceGroup'))]",
             "type": "Microsoft.Resources/deployments",
-            "apiVersion": "2021-04-01",
+            "apiVersion": "2022-09-01",
             "resourceGroup": "[parameters('acrResourceGroup')]",
             "dependsOn": [
                 "[concat('Microsoft.ContainerService/managedClusters/', variables('varPrefix'))]",
@@ -228,13 +231,13 @@
                     "contentVersion": "1.0.0.0",
                     "resources": [
                         {
-                            "apiVersion": "2018-09-01-preview",
+                            "apiVersion": "2022-04-01",
                             "type": "Microsoft.ContainerRegistry/registries/providers/roleAssignments",
                             "name": "[concat(variables('acrName'), '/Microsoft.Authorization/', parameters('guidValue'))]",
                             "properties": {
-                                "principalId": "[reference(variables('varPrefix'), '2021-07-01').identityProfile.kubeletidentity.objectId]",
+                                "roleDefinitionId": "[variables('acrPullRoleId')]",
+                                "principalId": "[reference(variables('aksClusterId'), '2022-04-01', 'Full').properties.identityProfile.kubeletidentity.objectId]",
                                 "principalType": "ServicePrincipal",
-                                "roleDefinitionId": "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Authorization/roleDefinitions/', '7f951dda-4ed3-4680-a7ca-43fe172d538d')]",
                                 "scope": "[resourceId(parameters('acrResourceGroup'),'Microsoft.ContainerRegistry/registries/', variables('acrName'))]"
                             }
                         }
@@ -245,7 +248,7 @@
         {
             "name": "[variables('acrName')]",
             "type": "Microsoft.ContainerRegistry/registries",
-            "apiVersion": "2021-09-01",
+            "apiVersion": "2022-02-01-preview",
             "location": "[parameters('location')]",
             "sku": {
                 "name": "Standard"
@@ -258,7 +261,7 @@
         {
             "name": "[variables('varPrefix')]",
             "type": "Microsoft.ContainerService/managedClusters",
-            "apiVersion": "2021-07-01",
+            "apiVersion": "2022-09-01",
             "dependsOn": [
                 "[concat('Microsoft.Network/virtualNetworks/', variables('vnetName'))]"
             ],
@@ -323,7 +326,7 @@
         {
             "name": "[variables('vnetName')]",
             "type": "Microsoft.Network/virtualNetworks",
-            "apiVersion": "2021-08-01",
+            "apiVersion": "2022-07-01",
             "location": "[parameters('location')]",
             "properties": {
                 "subnets": [
@@ -344,20 +347,20 @@
         {
             "name": "[concat(variables('vnetName'), '/', parameters('serviceSubnetName'), '/Microsoft.Authorization/', guid(resourceGroup().id, deployment().name))]",
             "type": "Microsoft.Network/virtualNetworks/subnets/providers/roleAssignments",
-            "apiVersion": "2020-04-01-preview",
+            "apiVersion": "2022-04-01",
             "dependsOn": [
                 "[concat('Microsoft.Network/virtualNetworks/', variables('vnetName'))]"
             ],
             "properties": {
                 "roleDefinitionId": "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Authorization/roleDefinitions/', '4d97b98b-1d4f-4787-a291-c67834d212e7')]",
-                "principalId": "[reference(variables('varPrefix'),'2021-07-01','Full').identity.principalId]",
+                "principalId": "[reference(variables('varPrefix'),'2022-04-01','Full').identity.principalId]",
                 "scope": "[variables('serviceSubnetId')]"
             }
         },
         {
             "name": "[variables('networkInterfaceEr1')]",
             "type": "Microsoft.Network/networkInterfaces",
-            "apiVersion": "2021-08-01",
+            "apiVersion": "2022-07-01",
             "location": "[parameters('location')]",
             "dependsOn": [
                 "[concat('Microsoft.Network/networkSecurityGroups/', variables('networkSecurityGroupName1'))]",
@@ -392,7 +395,7 @@
         {
             "name": "[variables('publicIpAddressEr1')]",
             "type": "Microsoft.Network/publicIpAddresses",
-            "apiVersion": "2021-08-01",
+            "apiVersion": "2022-07-01",
             "location": "[parameters('location')]",
             "dependsOn": [
                 "[concat('Microsoft.ContainerService/managedClusters/', variables('varPrefix'))]"
@@ -407,7 +410,7 @@
         {
             "name": "[variables('networkSecurityGroupName1')]",
             "type": "Microsoft.Network/networkSecurityGroups",
-            "apiVersion": "2021-08-01",
+            "apiVersion": "2022-07-01",
             "location": "[parameters('location')]",
             "properties": {
                 "securityRules": [
@@ -443,7 +446,7 @@
         {
             "name": "[concat('VirtualMachineDeployment', parameters('location'))]",
             "type": "Microsoft.Resources/deployments",
-            "apiVersion": "2021-04-01",
+            "apiVersion": "2022-09-01",
             "resourceGroup": "[parameters('acrResourceGroup')]",
             "dependsOn": [
                 "[resourceId('Microsoft.Resources/deployments', concat('LinkedTemplateCreateRouter', parameters('location')))]",
@@ -458,7 +461,7 @@
                     "resources": [
                         {
                             "type": "Microsoft.Compute/virtualMachines",
-                            "apiVersion": "2021-11-01",
+                            "apiVersion": "2022-08-01",
                             "name": "[concat(variables('varPrefix'),'-er')]",
                             "location": "[parameters('location')]",
                             "plan": {

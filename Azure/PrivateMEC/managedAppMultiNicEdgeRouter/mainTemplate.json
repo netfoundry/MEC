@@ -59,7 +59,7 @@
       "location": "[parameters('location')]",
       "name": "[parameters('nfName')]",
       "properties": {
-        "skuName": "ziti-1.3.0-mnic",
+        "skuName": "ziti-2.1.0-mnic",
         "vendorName": "NetFoundryInc",
         "device": {
           "id": "[parameters('deviceId')]"
