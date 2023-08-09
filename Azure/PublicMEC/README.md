@@ -25,7 +25,7 @@ You may need to install azure cli and login first if not already done so.
 
 ## Any Azure Region
 ```powershell
-az deployment group create --name daksdeploy$LOCATION --subscription $SUB_ID --resource-group $RG_NAME --template-file template.json --parameters parameters.json -p client_id=$CLIENT_ID -p client_secret=$CLIENT_SECRET -p router_attribute=<your router attribute> -p location=$LOCATION acrResourceGroup=$RG_NAME
+az deployment group create --name daksdeploy$LOCATION --subscription $SUB_ID --resource-group $RG_NAME --template-file template.json --parameters parameters.json -p client_id=$CLIENT_ID -p client_secret=$CLIENT_SECRET -p router_attribute="azure" -p location=$LOCATION acrResourceGroup=$RG_NAME
 ```
 
 ## Public MEC Azure Region

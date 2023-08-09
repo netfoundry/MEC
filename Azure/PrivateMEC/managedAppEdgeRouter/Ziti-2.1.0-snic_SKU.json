@@ -1,0 +1,68 @@
+{
+    "properties": {
+      "skuType": "SDWAN",
+      "preview": true,
+      "deploymentMode": "PrivateEdgeZone",
+      "managedApplicationParameters": null,
+      "managedApplicationTemplate": null,
+      "networkFunctionTemplate": {
+        "networkFunctionRoleConfigurations": [
+          {
+            "roleName": "ziti-edge-router",
+            "roleType": "VirtualMachine",
+            "virtualMachineSize": "Standard_D3_v2",
+            "storageProfile": {
+              "osDisk": {
+                "diskSizeGB": 40,
+                "osType": "Linux",
+                "name": "netfoundry",
+                "vhd": {
+                  "uri": "https://clouddevimages.blob.core.windows.net/system/Microsoft.Compute/Images/builds/ub2.1.20230614-osDisk.12e6ff5e-ae6a-4d16-a2d9-735a439b6c76.vhd?sp=r&st=2023-06-27T19:25:00Z&se=2024-06-28T04:25:00Z&spr=https&sv=2022-11-02&sr=b&sig=f%2BwfxPV5M0OyzyUaxNN2LWbl3%2Bs0vZVPr0pGxDzsTVY%3D"
+                }
+              },
+              "dataDisks": [
+                {
+                  "createOption": "Empty",
+                  "name": "zitiEdgeRouterDataDisk",
+                  "diskSizeGB": 30
+                }
+              ]
+            },
+            "osProfile": {
+              "adminUsername": "ziggy",
+              "customDataRequired": true,
+              "linuxConfiguration": {
+                "ssh": {
+                  "publicKeys": [
+                    {
+                      "keyData": "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQDGo2L/YPiRdf9wlfmxDGkj2ErJjrRa3knMfOlGZxc6scVniMPoop+mkzy/pqTRC1VW+AAcoZdeAE27FUCSb0K13NnKaDT7OnpXsSbWR1Q4flan3n1VtSvZ7j/DMXIq9bja0LWxzKvOfILXLmVlUpeuidbEc7lMenjbaXIzYotjt/tdE1XzHrURieVNTZtzn+o9ByVpnVdfZNcCLxoE+btSEaNpN7fg1Q8fHylqGSjYgBP5Sth8wYlHHshKF3Own88CIIvYoxFatEPy8SwTPgmPkX24ulaySRayMPOTFZOxVWGgO59iaR7pBH8VUP93hyHWTxCzqdzDM0IFSXZDjZHrWOLA64Qql6Vd3qjyMSRkzehsmPgNQkZlEwcLmEB3X70Guv7q2ELCY6zkb/OPhoG34QQ8OkeybEjODuT5AK8LZUsJCPYhf1S1sbpYIAIFMbBIF5n9ZOCIJv7kYrRNLt5aZZUBax9Sbi6Azi8M8pxiyxzEiexJ66fqCdEEjmopjOr+aL9iQcdRolm4+6ZnLsHOF3Di69jlex9UeSdbQy0ZQ5tXCO2irXIXrIMnw6aH89kLGB7u5s1bvMF0LeGPGYw+xRJCjPMVYQGcxiXuNznnIwPuU99DKh/Xm/7Vr/EXWHKc7dm+UYolMJ6ssijwndgMhw5CfeoXcHk4XRIFRF3Klw=="
+                    }
+                  ]
+                }
+              }
+            },
+            "userDataTemplate": null,
+            "userDataParameters": null,
+            "networkInterfaces": [
+              {
+                "networkInterfaceName": "mecmgmtNic",
+                "macAddress": "",
+                "vmSwitchType": "Management",
+                "ipConfigurations": [
+                  {
+                    "ipAllocationMethod": "Static",
+                    "ipAddress": "",
+                    "subnet": "",
+                    "gateway": "",
+                    "ipVersion": "IPv4",
+                    "dnsServers": null
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    }
+  }
+  

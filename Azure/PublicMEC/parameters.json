@@ -3,7 +3,7 @@
     "contentVersion": "1.0.0.0",
     "parameters": {
         "dnsPrefix": {
-            "value": "dkube"
+            "value": "aksprod"
         },
         "kubernetesVersion": {
             "value": "1.23.12"
