@@ -1,65 +1,68 @@
-armclient put subscriptions/39a186da-5ebb-4d65-948f-6ed2a776ea25/providers/Microsoft.HybridNetwork/vendors/NetFoundryInc/vendorskus/ziti-2.2.0-snic/previewSubscriptions/53d234e8-b7ac-4f09-a517-508ed55e4cae?api-version=2020-01-01-preview "{}"
-armclient put subscriptions/39a186da-5ebb-4d65-948f-6ed2a776ea25/providers/Microsoft.HybridNetwork/vendors/NetFoundryInc/vendorskus/ziti-2.2.0-mnic/previewSubscriptions/53d234e8-b7ac-4f09-a517-508ed55e4cae?api-version=2020-01-01-preview "{}"
+armclient put subscriptions/39a186da-5ebb-4d65-948f-6ed2a776ea25/providers/Microsoft.HybridNetwork/vendors/NetFoundryInc/vendorskus/ziti-2.3.0-snic/previewSubscriptions/53d234e8-b7ac-4f09-a517-508ed55e4cae?api-version=2020-01-01-preview "{}"
+armclient put subscriptions/39a186da-5ebb-4d65-948f-6ed2a776ea25/providers/Microsoft.HybridNetwork/vendors/NetFoundryInc/vendorskus/ziti-2.3.0-mnic/previewSubscriptions/53d234e8-b7ac-4f09-a517-508ed55e4cae?api-version=2020-01-01-preview "{}"
 
-armclient put subscriptions/39a186da-5ebb-4d65-948f-6ed2a776ea25/providers/Microsoft.HybridNetwork/vendors/NetFoundryInc/vendorskus/ziti-2.2.0-snic/previewSubscriptions/880949aa-c7ae-4cfe-b5cd-f90d8e81d776?api-version=2020-01-01-preview "{}"
-armclient put subscriptions/39a186da-5ebb-4d65-948f-6ed2a776ea25/providers/Microsoft.HybridNetwork/vendors/NetFoundryInc/vendorskus/ziti-2.2.0-mnic/previewSubscriptions/880949aa-c7ae-4cfe-b5cd-f90d8e81d776?api-version=2020-01-01-preview "{}"
+armclient put subscriptions/39a186da-5ebb-4d65-948f-6ed2a776ea25/providers/Microsoft.HybridNetwork/vendors/NetFoundryInc/vendorskus/ziti-2.3.0-snic/previewSubscriptions/880949aa-c7ae-4cfe-b5cd-f90d8e81d776?api-version=2020-01-01-preview "{}"
+armclient put subscriptions/39a186da-5ebb-4d65-948f-6ed2a776ea25/providers/Microsoft.HybridNetwork/vendors/NetFoundryInc/vendorskus/ziti-2.3.0-mnic/previewSubscriptions/880949aa-c7ae-4cfe-b5cd-f90d8e81d776?api-version=2020-01-01-preview "{}"
 
-armclient put subscriptions/39a186da-5ebb-4d65-948f-6ed2a776ea25/providers/Microsoft.HybridNetwork/vendors/NetFoundryInc/vendorskus/ziti-2.2.0-mnic/previewSubscriptions/79573dd5-f6ea-4fdc-a3aa-d05586980843?api-version=2020-01-01-preview "{}"
-armclient put subscriptions/39a186da-5ebb-4d65-948f-6ed2a776ea25/providers/Microsoft.HybridNetwork/vendors/NetFoundryInc/vendorskus/ziti-2.2.0-snic/previewSubscriptions/79573dd5-f6ea-4fdc-a3aa-d05586980843?api-version=2020-01-01-preview "{}"
+armclient put subscriptions/39a186da-5ebb-4d65-948f-6ed2a776ea25/providers/Microsoft.HybridNetwork/vendors/NetFoundryInc/vendorskus/ziti-2.3.0-mnic/previewSubscriptions/79573dd5-f6ea-4fdc-a3aa-d05586980843?api-version=2020-01-01-preview "{}"
+armclient put subscriptions/39a186da-5ebb-4d65-948f-6ed2a776ea25/providers/Microsoft.HybridNetwork/vendors/NetFoundryInc/vendorskus/ziti-2.3.0-snic/previewSubscriptions/79573dd5-f6ea-4fdc-a3aa-d05586980843?api-version=2020-01-01-preview "{}"
 
-armclient put subscriptions/39a186da-5ebb-4d65-948f-6ed2a776ea25/providers/Microsoft.HybridNetwork/vendors/NetFoundryInc/vendorskus/ziti-2.2.0-snic/previewSubscriptions/d9c70d5d-e889-425e-935c-8c4d980b9107?api-version=2020-01-01-preview "{}"
-armclient put subscriptions/39a186da-5ebb-4d65-948f-6ed2a776ea25/providers/Microsoft.HybridNetwork/vendors/NetFoundryInc/vendorskus/ziti-2.2.0-mnic/previewSubscriptions/d9c70d5d-e889-425e-935c-8c4d980b9107?api-version=2020-01-01-preview "{}"
+armclient put subscriptions/39a186da-5ebb-4d65-948f-6ed2a776ea25/providers/Microsoft.HybridNetwork/vendors/NetFoundryInc/vendorskus/ziti-2.3.0-snic/previewSubscriptions/d9c70d5d-e889-425e-935c-8c4d980b9107?api-version=2020-01-01-preview "{}"
+armclient put subscriptions/39a186da-5ebb-4d65-948f-6ed2a776ea25/providers/Microsoft.HybridNetwork/vendors/NetFoundryInc/vendorskus/ziti-2.3.0-mnic/previewSubscriptions/d9c70d5d-e889-425e-935c-8c4d980b9107?api-version=2020-01-01-preview "{}"
 
-armclient put subscriptions/39a186da-5ebb-4d65-948f-6ed2a776ea25/providers/Microsoft.HybridNetwork/vendors/NetFoundryInc/vendorskus/ziti-2.2.0-mnic/previewSubscriptions/33e681ce-910a-44b4-84b8-d07290144803?api-version=2020-01-01-preview "{}"
-armclient put subscriptions/39a186da-5ebb-4d65-948f-6ed2a776ea25/providers/Microsoft.HybridNetwork/vendors/NetFoundryInc/vendorskus/ziti-2.2.0-snic/previewSubscriptions/33e681ce-910a-44b4-84b8-d07290144803?api-version=2020-01-01-preview "{}"
+armclient put subscriptions/39a186da-5ebb-4d65-948f-6ed2a776ea25/providers/Microsoft.HybridNetwork/vendors/NetFoundryInc/vendorskus/ziti-2.3.0-mnic/previewSubscriptions/33e681ce-910a-44b4-84b8-d07290144803?api-version=2020-01-01-preview "{}"
+armclient put subscriptions/39a186da-5ebb-4d65-948f-6ed2a776ea25/providers/Microsoft.HybridNetwork/vendors/NetFoundryInc/vendorskus/ziti-2.3.0-snic/previewSubscriptions/33e681ce-910a-44b4-84b8-d07290144803?api-version=2020-01-01-preview "{}"
 
-armclient put subscriptions/39a186da-5ebb-4d65-948f-6ed2a776ea25/providers/Microsoft.HybridNetwork/vendors/NetFoundryInc/vendorskus/ziti-2.2.0-snic/previewSubscriptions/1e2b0a2d-a313-43ca-8ce7-63397cf52716?api-version=2020-01-01-preview "{}"
-armclient put subscriptions/39a186da-5ebb-4d65-948f-6ed2a776ea25/providers/Microsoft.HybridNetwork/vendors/NetFoundryInc/vendorskus/ziti-2.2.0-mnic/previewSubscriptions/1e2b0a2d-a313-43ca-8ce7-63397cf52716?api-version=2020-01-01-preview "{}"
+armclient put subscriptions/39a186da-5ebb-4d65-948f-6ed2a776ea25/providers/Microsoft.HybridNetwork/vendors/NetFoundryInc/vendorskus/ziti-2.3.0-snic/previewSubscriptions/1e2b0a2d-a313-43ca-8ce7-63397cf52716?api-version=2020-01-01-preview "{}"
+armclient put subscriptions/39a186da-5ebb-4d65-948f-6ed2a776ea25/providers/Microsoft.HybridNetwork/vendors/NetFoundryInc/vendorskus/ziti-2.3.0-mnic/previewSubscriptions/1e2b0a2d-a313-43ca-8ce7-63397cf52716?api-version=2020-01-01-preview "{}"
 
-armclient put subscriptions/39a186da-5ebb-4d65-948f-6ed2a776ea25/providers/Microsoft.HybridNetwork/vendors/NetFoundryInc/vendorskus/ziti-2.2.0-mnic/previewSubscriptions/1aca6609-ba54-4b51-a662-40f49816a6f5?api-version=2020-01-01-preview "{}"
-armclient put subscriptions/39a186da-5ebb-4d65-948f-6ed2a776ea25/providers/Microsoft.HybridNetwork/vendors/NetFoundryInc/vendorskus/ziti-2.2.0-snic/previewSubscriptions/1aca6609-ba54-4b51-a662-40f49816a6f5?api-version=2020-01-01-preview "{}"
+armclient put subscriptions/39a186da-5ebb-4d65-948f-6ed2a776ea25/providers/Microsoft.HybridNetwork/vendors/NetFoundryInc/vendorskus/ziti-2.3.0-mnic/previewSubscriptions/1aca6609-ba54-4b51-a662-40f49816a6f5?api-version=2020-01-01-preview "{}"
+armclient put subscriptions/39a186da-5ebb-4d65-948f-6ed2a776ea25/providers/Microsoft.HybridNetwork/vendors/NetFoundryInc/vendorskus/ziti-2.3.0-snic/previewSubscriptions/1aca6609-ba54-4b51-a662-40f49816a6f5?api-version=2020-01-01-preview "{}"
 
-armclient put subscriptions/39a186da-5ebb-4d65-948f-6ed2a776ea25/providers/Microsoft.HybridNetwork/vendors/NetFoundryInc/vendorskus/ziti-2.2.0-snic/previewSubscriptions/56951e4c-2008-4bca-88ba-d2d2eab9fede?api-version=2020-01-01-preview "{}"
-armclient put subscriptions/39a186da-5ebb-4d65-948f-6ed2a776ea25/providers/Microsoft.HybridNetwork/vendors/NetFoundryInc/vendorskus/ziti-2.2.0-mnic/previewSubscriptions/56951e4c-2008-4bca-88ba-d2d2eab9fede?api-version=2020-01-01-preview "{}"
+armclient put subscriptions/39a186da-5ebb-4d65-948f-6ed2a776ea25/providers/Microsoft.HybridNetwork/vendors/NetFoundryInc/vendorskus/ziti-2.3.0-snic/previewSubscriptions/56951e4c-2008-4bca-88ba-d2d2eab9fede?api-version=2020-01-01-preview "{}"
+armclient put subscriptions/39a186da-5ebb-4d65-948f-6ed2a776ea25/providers/Microsoft.HybridNetwork/vendors/NetFoundryInc/vendorskus/ziti-2.3.0-mnic/previewSubscriptions/56951e4c-2008-4bca-88ba-d2d2eab9fede?api-version=2020-01-01-preview "{}"
 
-armclient put subscriptions/39a186da-5ebb-4d65-948f-6ed2a776ea25/providers/Microsoft.HybridNetwork/vendors/NetFoundryInc/vendorskus/ziti-2.2.0-mnic/previewSubscriptions/4867d1cb-6ff0-4644-a0dd-c4bcad7521d3?api-version=2020-01-01-preview "{}"
-armclient put subscriptions/39a186da-5ebb-4d65-948f-6ed2a776ea25/providers/Microsoft.HybridNetwork/vendors/NetFoundryInc/vendorskus/ziti-2.2.0-snic/previewSubscriptions/4867d1cb-6ff0-4644-a0dd-c4bcad7521d3?api-version=2020-01-01-preview "{}"
+armclient put subscriptions/39a186da-5ebb-4d65-948f-6ed2a776ea25/providers/Microsoft.HybridNetwork/vendors/NetFoundryInc/vendorskus/ziti-2.3.0-mnic/previewSubscriptions/4867d1cb-6ff0-4644-a0dd-c4bcad7521d3?api-version=2020-01-01-preview "{}"
+armclient put subscriptions/39a186da-5ebb-4d65-948f-6ed2a776ea25/providers/Microsoft.HybridNetwork/vendors/NetFoundryInc/vendorskus/ziti-2.3.0-snic/previewSubscriptions/4867d1cb-6ff0-4644-a0dd-c4bcad7521d3?api-version=2020-01-01-preview "{}"
 
-armclient put subscriptions/39a186da-5ebb-4d65-948f-6ed2a776ea25/providers/Microsoft.HybridNetwork/vendors/NetFoundryInc/vendorskus/ziti-2.2.0-snic/previewSubscriptions/2b6e2174-331c-4a9c-aada-7f793c987c58?api-version=2020-01-01-preview "{}"
-armclient put subscriptions/39a186da-5ebb-4d65-948f-6ed2a776ea25/providers/Microsoft.HybridNetwork/vendors/NetFoundryInc/vendorskus/ziti-2.2.0-mnic/previewSubscriptions/2b6e2174-331c-4a9c-aada-7f793c987c58?api-version=2020-01-01-preview "{}"
+armclient put subscriptions/39a186da-5ebb-4d65-948f-6ed2a776ea25/providers/Microsoft.HybridNetwork/vendors/NetFoundryInc/vendorskus/ziti-2.3.0-snic/previewSubscriptions/2b6e2174-331c-4a9c-aada-7f793c987c58?api-version=2020-01-01-preview "{}"
+armclient put subscriptions/39a186da-5ebb-4d65-948f-6ed2a776ea25/providers/Microsoft.HybridNetwork/vendors/NetFoundryInc/vendorskus/ziti-2.3.0-mnic/previewSubscriptions/2b6e2174-331c-4a9c-aada-7f793c987c58?api-version=2020-01-01-preview "{}"
 
-armclient put subscriptions/39a186da-5ebb-4d65-948f-6ed2a776ea25/providers/Microsoft.HybridNetwork/vendors/NetFoundryInc/vendorskus/ziti-2.2.0-mnic/previewSubscriptions/32d513cc-6396-4e56-a38c-862c5f75367e?api-version=2020-01-01-preview "{}"
-armclient put subscriptions/39a186da-5ebb-4d65-948f-6ed2a776ea25/providers/Microsoft.HybridNetwork/vendors/NetFoundryInc/vendorskus/ziti-2.2.0-snic/previewSubscriptions/32d513cc-6396-4e56-a38c-862c5f75367e?api-version=2020-01-01-preview "{}"
+armclient put subscriptions/39a186da-5ebb-4d65-948f-6ed2a776ea25/providers/Microsoft.HybridNetwork/vendors/NetFoundryInc/vendorskus/ziti-2.3.0-mnic/previewSubscriptions/32d513cc-6396-4e56-a38c-862c5f75367e?api-version=2020-01-01-preview "{}"
+armclient put subscriptions/39a186da-5ebb-4d65-948f-6ed2a776ea25/providers/Microsoft.HybridNetwork/vendors/NetFoundryInc/vendorskus/ziti-2.3.0-snic/previewSubscriptions/32d513cc-6396-4e56-a38c-862c5f75367e?api-version=2020-01-01-preview "{}"
 
-armclient put subscriptions/39a186da-5ebb-4d65-948f-6ed2a776ea25/providers/Microsoft.HybridNetwork/vendors/NetFoundryInc/vendorskus/ziti-2.2.0-snic/previewSubscriptions/54ef217c-72f2-42e7-8de3-86667915489a?api-version=2020-01-01-preview "{}"
-armclient put subscriptions/39a186da-5ebb-4d65-948f-6ed2a776ea25/providers/Microsoft.HybridNetwork/vendors/NetFoundryInc/vendorskus/ziti-2.2.0-mnic/previewSubscriptions/54ef217c-72f2-42e7-8de3-86667915489a?api-version=2020-01-01-preview "{}"
+armclient put subscriptions/39a186da-5ebb-4d65-948f-6ed2a776ea25/providers/Microsoft.HybridNetwork/vendors/NetFoundryInc/vendorskus/ziti-2.3.0-snic/previewSubscriptions/54ef217c-72f2-42e7-8de3-86667915489a?api-version=2020-01-01-preview "{}"
+armclient put subscriptions/39a186da-5ebb-4d65-948f-6ed2a776ea25/providers/Microsoft.HybridNetwork/vendors/NetFoundryInc/vendorskus/ziti-2.3.0-mnic/previewSubscriptions/54ef217c-72f2-42e7-8de3-86667915489a?api-version=2020-01-01-preview "{}"
 
-armclient put subscriptions/39a186da-5ebb-4d65-948f-6ed2a776ea25/providers/Microsoft.HybridNetwork/vendors/NetFoundryInc/vendorskus/ziti-2.2.0-mnic/previewSubscriptions/0846d486-0cf4-4f70-9907-8ea9a3625f92?api-version=2020-01-01-preview "{}"
-armclient put subscriptions/39a186da-5ebb-4d65-948f-6ed2a776ea25/providers/Microsoft.HybridNetwork/vendors/NetFoundryInc/vendorskus/ziti-2.2.0-snic/previewSubscriptions/0846d486-0cf4-4f70-9907-8ea9a3625f92?api-version=2020-01-01-preview "{}"
+armclient put subscriptions/39a186da-5ebb-4d65-948f-6ed2a776ea25/providers/Microsoft.HybridNetwork/vendors/NetFoundryInc/vendorskus/ziti-2.3.0-mnic/previewSubscriptions/0846d486-0cf4-4f70-9907-8ea9a3625f92?api-version=2020-01-01-preview "{}"
+armclient put subscriptions/39a186da-5ebb-4d65-948f-6ed2a776ea25/providers/Microsoft.HybridNetwork/vendors/NetFoundryInc/vendorskus/ziti-2.3.0-snic/previewSubscriptions/0846d486-0cf4-4f70-9907-8ea9a3625f92?api-version=2020-01-01-preview "{}"
 
-armclient put subscriptions/39a186da-5ebb-4d65-948f-6ed2a776ea25/providers/Microsoft.HybridNetwork/vendors/NetFoundryInc/vendorskus/ziti-2.2.0-snic/previewSubscriptions/db406b12-ee17-4bf8-92fd-bab313b80c9c?api-version=2020-01-01-preview "{}"
-armclient put subscriptions/39a186da-5ebb-4d65-948f-6ed2a776ea25/providers/Microsoft.HybridNetwork/vendors/NetFoundryInc/vendorskus/ziti-2.2.0-mnic/previewSubscriptions/db406b12-ee17-4bf8-92fd-bab313b80c9c?api-version=2020-01-01-preview "{}"
+armclient put subscriptions/39a186da-5ebb-4d65-948f-6ed2a776ea25/providers/Microsoft.HybridNetwork/vendors/NetFoundryInc/vendorskus/ziti-2.3.0-snic/previewSubscriptions/db406b12-ee17-4bf8-92fd-bab313b80c9c?api-version=2020-01-01-preview "{}"
+armclient put subscriptions/39a186da-5ebb-4d65-948f-6ed2a776ea25/providers/Microsoft.HybridNetwork/vendors/NetFoundryInc/vendorskus/ziti-2.3.0-mnic/previewSubscriptions/db406b12-ee17-4bf8-92fd-bab313b80c9c?api-version=2020-01-01-preview "{}"
 
-armclient put subscriptions/39a186da-5ebb-4d65-948f-6ed2a776ea25/providers/Microsoft.HybridNetwork/vendors/NetFoundryInc/vendorskus/ziti-2.2.0-mnic/previewSubscriptions/6dbb5850-64b4-49c0-ba85-d38f089c6fa4?api-version=2020-01-01-preview "{}"
-armclient put subscriptions/39a186da-5ebb-4d65-948f-6ed2a776ea25/providers/Microsoft.HybridNetwork/vendors/NetFoundryInc/vendorskus/ziti-2.2.0-snic/previewSubscriptions/6dbb5850-64b4-49c0-ba85-d38f089c6fa4?api-version=2020-01-01-preview "{}"
+armclient put subscriptions/39a186da-5ebb-4d65-948f-6ed2a776ea25/providers/Microsoft.HybridNetwork/vendors/NetFoundryInc/vendorskus/ziti-2.3.0-mnic/previewSubscriptions/6dbb5850-64b4-49c0-ba85-d38f089c6fa4?api-version=2020-01-01-preview "{}"
+armclient put subscriptions/39a186da-5ebb-4d65-948f-6ed2a776ea25/providers/Microsoft.HybridNetwork/vendors/NetFoundryInc/vendorskus/ziti-2.3.0-snic/previewSubscriptions/6dbb5850-64b4-49c0-ba85-d38f089c6fa4?api-version=2020-01-01-preview "{}"
 
-armclient put subscriptions/39a186da-5ebb-4d65-948f-6ed2a776ea25/providers/Microsoft.HybridNetwork/vendors/NetFoundryInc/vendorskus/ziti-2.2.0-snic/previewSubscriptions/a27d4bf1-a787-487f-8c45-0e549e4bfa31?api-version=2020-01-01-preview "{}"
-armclient put subscriptions/39a186da-5ebb-4d65-948f-6ed2a776ea25/providers/Microsoft.HybridNetwork/vendors/NetFoundryInc/vendorskus/ziti-2.2.0-mnic/previewSubscriptions/a27d4bf1-a787-487f-8c45-0e549e4bfa31?api-version=2020-01-01-preview "{}"
+armclient put subscriptions/39a186da-5ebb-4d65-948f-6ed2a776ea25/providers/Microsoft.HybridNetwork/vendors/NetFoundryInc/vendorskus/ziti-2.3.0-snic/previewSubscriptions/a27d4bf1-a787-487f-8c45-0e549e4bfa31?api-version=2020-01-01-preview "{}"
+armclient put subscriptions/39a186da-5ebb-4d65-948f-6ed2a776ea25/providers/Microsoft.HybridNetwork/vendors/NetFoundryInc/vendorskus/ziti-2.3.0-mnic/previewSubscriptions/a27d4bf1-a787-487f-8c45-0e549e4bfa31?api-version=2020-01-01-preview "{}"
 
-armclient put subscriptions/39a186da-5ebb-4d65-948f-6ed2a776ea25/providers/Microsoft.HybridNetwork/vendors/NetFoundryInc/vendorskus/ziti-2.2.0-mnic/previewSubscriptions/c6559b1b-40a3-496c-a5fa-466a5e8e65d8?api-version=2020-01-01-preview "{}"
-armclient put subscriptions/39a186da-5ebb-4d65-948f-6ed2a776ea25/providers/Microsoft.HybridNetwork/vendors/NetFoundryInc/vendorskus/ziti-2.2.0-snic/previewSubscriptions/c6559b1b-40a3-496c-a5fa-466a5e8e65d8?api-version=2020-01-01-preview "{}"
+armclient put subscriptions/39a186da-5ebb-4d65-948f-6ed2a776ea25/providers/Microsoft.HybridNetwork/vendors/NetFoundryInc/vendorskus/ziti-2.3.0-mnic/previewSubscriptions/c6559b1b-40a3-496c-a5fa-466a5e8e65d8?api-version=2020-01-01-preview "{}"
+armclient put subscriptions/39a186da-5ebb-4d65-948f-6ed2a776ea25/providers/Microsoft.HybridNetwork/vendors/NetFoundryInc/vendorskus/ziti-2.3.0-snic/previewSubscriptions/c6559b1b-40a3-496c-a5fa-466a5e8e65d8?api-version=2020-01-01-preview "{}"
 
-armclient put subscriptions/39a186da-5ebb-4d65-948f-6ed2a776ea25/providers/Microsoft.HybridNetwork/vendors/NetFoundryInc/vendorskus/ziti-2.2.0-snic/previewSubscriptions/b6177999-d4e9-4f4f-9a20-0e8dbdfa2df7?api-version=2020-01-01-preview "{}"
-armclient put subscriptions/39a186da-5ebb-4d65-948f-6ed2a776ea25/providers/Microsoft.HybridNetwork/vendors/NetFoundryInc/vendorskus/ziti-2.2.0-mnic/previewSubscriptions/b6177999-d4e9-4f4f-9a20-0e8dbdfa2df7?api-version=2020-01-01-preview "{}"
+armclient put subscriptions/39a186da-5ebb-4d65-948f-6ed2a776ea25/providers/Microsoft.HybridNetwork/vendors/NetFoundryInc/vendorskus/ziti-2.3.0-snic/previewSubscriptions/b6177999-d4e9-4f4f-9a20-0e8dbdfa2df7?api-version=2020-01-01-preview "{}"
+armclient put subscriptions/39a186da-5ebb-4d65-948f-6ed2a776ea25/providers/Microsoft.HybridNetwork/vendors/NetFoundryInc/vendorskus/ziti-2.3.0-mnic/previewSubscriptions/b6177999-d4e9-4f4f-9a20-0e8dbdfa2df7?api-version=2020-01-01-preview "{}"
 
-armclient put subscriptions/39a186da-5ebb-4d65-948f-6ed2a776ea25/providers/Microsoft.HybridNetwork/vendors/NetFoundryInc/vendorskus/ziti-2.2.0-mnic/previewSubscriptions/c3b657bf-ac71-4653-96ff-e983e5150b35?api-version=2020-01-01-preview "{}"
-armclient put subscriptions/39a186da-5ebb-4d65-948f-6ed2a776ea25/providers/Microsoft.HybridNetwork/vendors/NetFoundryInc/vendorskus/ziti-2.2.0-snic/previewSubscriptions/c3b657bf-ac71-4653-96ff-e983e5150b35?api-version=2020-01-01-preview "{}"
+armclient put subscriptions/39a186da-5ebb-4d65-948f-6ed2a776ea25/providers/Microsoft.HybridNetwork/vendors/NetFoundryInc/vendorskus/ziti-2.3.0-mnic/previewSubscriptions/c3b657bf-ac71-4653-96ff-e983e5150b35?api-version=2020-01-01-preview "{}"
+armclient put subscriptions/39a186da-5ebb-4d65-948f-6ed2a776ea25/providers/Microsoft.HybridNetwork/vendors/NetFoundryInc/vendorskus/ziti-2.3.0-snic/previewSubscriptions/c3b657bf-ac71-4653-96ff-e983e5150b35?api-version=2020-01-01-preview "{}"
 
-armclient put subscriptions/39a186da-5ebb-4d65-948f-6ed2a776ea25/providers/Microsoft.HybridNetwork/vendors/NetFoundryInc/vendorskus/ziti-2.2.0-snic/previewSubscriptions/2d43c80b-3966-4ed0-8c0a-4b233697bd9f?api-version=2020-01-01-preview "{}"
-armclient put subscriptions/39a186da-5ebb-4d65-948f-6ed2a776ea25/providers/Microsoft.HybridNetwork/vendors/NetFoundryInc/vendorskus/ziti-2.2.0-mnic/previewSubscriptions/2d43c80b-3966-4ed0-8c0a-4b233697bd9f?api-version=2020-01-01-preview "{}"
+armclient put subscriptions/39a186da-5ebb-4d65-948f-6ed2a776ea25/providers/Microsoft.HybridNetwork/vendors/NetFoundryInc/vendorskus/ziti-2.3.0-snic/previewSubscriptions/2d43c80b-3966-4ed0-8c0a-4b233697bd9f?api-version=2020-01-01-preview "{}"
+armclient put subscriptions/39a186da-5ebb-4d65-948f-6ed2a776ea25/providers/Microsoft.HybridNetwork/vendors/NetFoundryInc/vendorskus/ziti-2.3.0-mnic/previewSubscriptions/2d43c80b-3966-4ed0-8c0a-4b233697bd9f?api-version=2020-01-01-preview "{}"
 
-armclient put subscriptions/39a186da-5ebb-4d65-948f-6ed2a776ea25/providers/Microsoft.HybridNetwork/vendors/NetFoundryInc/vendorskus/ziti-2.2.0-mnic/previewSubscriptions/e07fd7d3-f840-4b2f-9c50-46a0c0a9a733?api-version=2020-01-01-preview "{}"
-armclient put subscriptions/39a186da-5ebb-4d65-948f-6ed2a776ea25/providers/Microsoft.HybridNetwork/vendors/NetFoundryInc/vendorskus/ziti-2.2.0-snic/previewSubscriptions/e07fd7d3-f840-4b2f-9c50-46a0c0a9a733?api-version=2020-01-01-preview "{}"
+armclient put subscriptions/39a186da-5ebb-4d65-948f-6ed2a776ea25/providers/Microsoft.HybridNetwork/vendors/NetFoundryInc/vendorskus/ziti-2.3.0-mnic/previewSubscriptions/e07fd7d3-f840-4b2f-9c50-46a0c0a9a733?api-version=2020-01-01-preview "{}"
+armclient put subscriptions/39a186da-5ebb-4d65-948f-6ed2a776ea25/providers/Microsoft.HybridNetwork/vendors/NetFoundryInc/vendorskus/ziti-2.3.0-snic/previewSubscriptions/e07fd7d3-f840-4b2f-9c50-46a0c0a9a733?api-version=2020-01-01-preview "{}"
 
-armclient put subscriptions/39a186da-5ebb-4d65-948f-6ed2a776ea25/providers/Microsoft.HybridNetwork/vendors/NetFoundryInc/vendorskus/ziti-2.2.0-mnic/previewSubscriptions/e924a9eb-29a4-46de-873b-8a4d762d087c?api-version=2020-01-01-preview "{}"
-armclient put subscriptions/39a186da-5ebb-4d65-948f-6ed2a776ea25/providers/Microsoft.HybridNetwork/vendors/NetFoundryInc/vendorskus/ziti-2.2.0-snic/previewSubscriptions/e924a9eb-29a4-46de-873b-8a4d762d087c?api-version=2020-01-01-preview "{}"
+armclient put subscriptions/39a186da-5ebb-4d65-948f-6ed2a776ea25/providers/Microsoft.HybridNetwork/vendors/NetFoundryInc/vendorskus/ziti-2.3.0-mnic/previewSubscriptions/e924a9eb-29a4-46de-873b-8a4d762d087c?api-version=2020-01-01-preview "{}"
+armclient put subscriptions/39a186da-5ebb-4d65-948f-6ed2a776ea25/providers/Microsoft.HybridNetwork/vendors/NetFoundryInc/vendorskus/ziti-2.3.0-snic/previewSubscriptions/e924a9eb-29a4-46de-873b-8a4d762d087c?api-version=2020-01-01-preview "{}"
+
+armclient put subscriptions/39a186da-5ebb-4d65-948f-6ed2a776ea25/providers/Microsoft.HybridNetwork/vendors/NetFoundryInc/vendorskus/ziti-2.3.0-mnic/previewSubscriptions/8698f174-10b0-4e39-9ddb-9ded1839200b?api-version=2020-01-01-preview "{}"
+armclient put subscriptions/39a186da-5ebb-4d65-948f-6ed2a776ea25/providers/Microsoft.HybridNetwork/vendors/NetFoundryInc/vendorskus/ziti-2.3.0-snic/previewSubscriptions/8698f174-10b0-4e39-9ddb-9ded1839200b?api-version=2020-01-01-preview "{}"
